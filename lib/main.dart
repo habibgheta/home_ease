@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_ease/screens/auth/login_screen.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash/splash_screen.dart';
 
@@ -15,7 +16,7 @@ class HomeEaseApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'HomeEase',
       theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
+      home: const LoginScreen(),
     );
   }
 }
