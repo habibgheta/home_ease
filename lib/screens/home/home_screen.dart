@@ -4,6 +4,7 @@ import 'package:home_ease/widgets/service_card.dart';
 import 'package:home_ease/models/service_provider.dart';
 import 'package:home_ease/widgets/provider_card.dart';
 import 'package:home_ease/screens/home/service_providers_screen.dart';
+import 'package:home_ease/screens/main_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

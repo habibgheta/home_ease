@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:home_ease/models/service_provider.dart';
+import 'package:home_ease/models/booking.dart';
+import 'package:home_ease/services/booking_service.dart';
 
 class BookingDetailsScreen extends StatefulWidget {
   const BookingDetailsScreen({super.key, required this.provider});
@@ -143,7 +145,37 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  if (BookingService.isSlotBooked(
+                    providerName: widget.provider.name,
+                    date: selectedDate,
+                    timeSlot: selectedTime,
+                  )) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "This time slot is already booked. Please choose another slot.",
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+
+                  Booking booking = Booking(
+                    provider: widget.provider,
+                    date: selectedDate,
+                    timeSlot: selectedTime,
+                    bookingId: DateTime.now().millisecondsSinceEpoch.toString(),
+                  );
+
+                  BookingService.addBooking(booking);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Booking Successful")),
+                  );
+
+                  Navigator.pop(context);
+                },
                 child: const Text("Book Now"),
               ),
             ),
