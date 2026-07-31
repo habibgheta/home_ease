@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:home_ease/models/service_provider.dart';
+import 'package:home_ease/services/favorite_service.dart';
 
-class ProviderCard extends StatelessWidget {
+class ProviderCard extends StatefulWidget {
   const ProviderCard({super.key, required this.provider, this.onTap});
 
   final ServiceProvider provider;
   final VoidCallback? onTap;
 
   @override
+  State<ProviderCard> createState() => _ProviderCardState();
+}
+
+class _ProviderCardState extends State<ProviderCard> {
+  @override
   Widget build(BuildContext context) {
+    bool isFavorite = FavoriteService.isFavorite(widget.provider);
+
     return InkWell(
       borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),
@@ -30,7 +38,7 @@ class ProviderCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundImage: AssetImage(provider.image),
+              backgroundImage: AssetImage(widget.provider.image),
             ),
 
             const SizedBox(width: 14),
@@ -40,7 +48,7 @@ class ProviderCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    provider.name,
+                    widget.provider.name,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -49,7 +57,7 @@ class ProviderCard extends StatelessWidget {
 
                   const SizedBox(height: 4),
 
-                  Text(provider.service),
+                  Text(widget.provider.service),
 
                   const SizedBox(height: 4),
 
@@ -57,19 +65,43 @@ class ProviderCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.star, color: Colors.amber, size: 18),
                       const SizedBox(width: 4),
-                      Text("${provider.rating} (${provider.reviews} Reviews)"),
+                      Text(
+                        "${widget.provider.rating} (${widget.provider.reviews} Reviews)",
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
 
-            Text(
-              "₹${provider.charges}/hr",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.indigo,
-              ),
+            Column(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      if (FavoriteService.isFavorite(widget.provider)) {
+                        FavoriteService.removeFavorite(widget.provider);
+                      } else {
+                        FavoriteService.addFavorite(widget.provider);
+                      }
+                    });
+                  },
+                  icon: Icon(
+                    FavoriteService.isFavorite(widget.provider)
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    color: Colors.red,
+                  ),
+                ),
+
+                Text(
+                  "₹${widget.provider.charges}/hr",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.indigo,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

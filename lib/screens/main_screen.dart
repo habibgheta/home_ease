@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:home_ease/screens/home/home_screen.dart';
 import 'package:home_ease/screens/booking/bookings_screen.dart';
+import 'package:home_ease/screens/favorites/favorites_screen.dart';
+import 'package:home_ease/screens/profile/profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -15,12 +17,8 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> screens = [
     const HomeScreen(),
     const BookingsScreen(),
-
-    const Center(
-      child: Text("Favorites Screen", style: TextStyle(fontSize: 22)),
-    ),
-
-    const Center(child: Text("Profile Screen", style: TextStyle(fontSize: 22))),
+    const FavoritesScreen(),
+    const ProfileScreen(),
   ];
 
   @override
