@@ -7,9 +7,7 @@ class AboutScreen extends StatelessWidget {
   Future<void> openLinkedIn() async {
     final Uri url = Uri.parse("https://www.linkedin.com/in/habibgheta");
 
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    }
+    await launchUrl(url, mode: LaunchMode.externalApplication);
   }
 
   Future<void> sendEmail() async {
@@ -19,9 +17,7 @@ class AboutScreen extends StatelessWidget {
       query: "subject=HomeEase Support",
     );
 
-    if (await canLaunchUrl(email)) {
-      await launchUrl(email);
-    }
+    await launchUrl(email);
   }
 
   @override
