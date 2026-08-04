@@ -3,6 +3,7 @@ import 'package:home_ease/utils/app_colors.dart';
 import 'package:home_ease/utils/app_strings.dart';
 import 'package:home_ease/widgets/custom_button.dart';
 import 'package:home_ease/widgets/custom_text_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -26,6 +27,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
 
+  bool isLoading = false;
+
   @override
   void dispose() {
     fullNameController.dispose();
@@ -33,6 +36,77 @@ class _RegisterScreenState extends State<RegisterScreen> {
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> registerUser() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          );
+
+      await userCredential.user!.sendEmailVerification();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Account created successfully. Please verify your email.",
+          ),
+        ),
+      );
+
+      Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      String message;
+
+      switch (e.code) {
+        case "email-already-in-use":
+          message = "An account already exists with this email.";
+          break;
+
+        case "invalid-email":
+          message = "Please enter a valid email address.";
+          break;
+
+        case "weak-password":
+          message = "Password is too weak.";
+          break;
+
+        case "network-request-failed":
+          message = "Please check your internet connection.";
+          break;
+
+        default:
+          message = e.message ?? "Registration failed.";
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong. Please try again."),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -173,13 +247,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   CustomButton(
                     text: AppStrings.register,
+                    isLoading: isLoading,
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Registration Successful"),
-                          ),
-                        );
+                        registerUser();
                       }
                     },
                   ),
