@@ -130,10 +130,6 @@ class _LoginScreenState extends State<LoginScreen> {
           message = "Invalid email or password.";
           break;
 
-        case "user-not-found":
-          message = "No account found with this email.";
-          break;
-
         case "network-request-failed":
           message = "Please check your internet connection.";
           break;
