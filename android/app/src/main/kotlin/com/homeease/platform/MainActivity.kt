@@ -1,4 +1,4 @@
-package com.example.home_ease
+package com.homeease.platform
 
 import io.flutter.embedding.android.FlutterActivity
 

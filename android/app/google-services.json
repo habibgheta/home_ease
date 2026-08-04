@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "145397970987",
+    "project_id": "homeease-platform",
+    "storage_bucket": "homeease-platform.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:145397970987:android:3dc0699815f480b1a1926e",
+        "android_client_info": {
+          "package_name": "com.homeease.platform"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAI7CRGjCoZ0CsW6qI2DToVLLnmzleNR_A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
