@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:home_ease/screens/auth/register_screen.dart';
+import 'package:home_ease/screens/main_screen.dart';
 import 'package:home_ease/utils/app_colors.dart';
 import 'package:home_ease/utils/app_strings.dart';
 import 'package:home_ease/widgets/custom_button.dart';
@@ -16,16 +18,150 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController emailController = TextEditingController();
-
   final TextEditingController passwordController = TextEditingController();
 
   bool obscurePassword = true;
+  bool isLoading = false;
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> loginUser() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          );
+
+      User? user = userCredential.user;
+
+      if (user == null) {
+        throw FirebaseAuthException(
+          code: "user-not-found",
+          message: "User not found.",
+        );
+      }
+
+      await user.reload();
+      user = FirebaseAuth.instance.currentUser;
+
+      if (!mounted) return;
+
+      if (user!.emailVerified) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+        );
+      } else {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Email Not Verified"),
+              content: const Text(
+                "Your email address has not been verified.\n\n"
+                "Please verify your email to recover your account securely.\n\n"
+                "If you are demonstrating the project, you may continue without verification.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    await user!.sendEmailVerification();
+
+                    if (!context.mounted) return;
+
+                    Navigator.pop(context);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Verification email sent successfully."),
+                      ),
+                    );
+                  },
+                  child: const Text("Resend Email"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MainScreen()),
+                    );
+                  },
+                  child: const Text("Continue Anyway"),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    await FirebaseAuth.instance.signOut();
+
+                    if (!context.mounted) return;
+
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String message;
+
+      switch (e.code) {
+        case "invalid-email":
+          message = "Please enter a valid email.";
+          break;
+
+        case "user-not-found":
+        case "invalid-credential":
+        case "wrong-password":
+          message = "Invalid email or password.";
+          break;
+
+        case "user-not-found":
+          message = "No account found with this email.";
+          break;
+
+        case "network-request-failed":
+          message = "Please check your internet connection.";
+          break;
+
+        default:
+          message = e.message ?? "Login failed.";
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong. Please try again."),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -126,11 +262,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   CustomButton(
                     text: AppStrings.login,
+                    isLoading: isLoading,
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Login Successful")),
-                        );
+                        loginUser();
                       }
                     },
                   ),
@@ -146,7 +281,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const RegisterScreen(),
+                              builder: (_) => const RegisterScreen(),
                             ),
                           );
                         },
