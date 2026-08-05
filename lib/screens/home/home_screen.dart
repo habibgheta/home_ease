@@ -9,6 +9,7 @@ import 'package:home_ease/screens/booking/bookings_screen.dart';
 import 'package:home_ease/screens/favorites/favorites_screen.dart';
 import 'package:home_ease/screens/settings/settings_screen.dart';
 import 'package:home_ease/screens/about/about_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -167,8 +168,18 @@ class HomeScreen extends StatelessWidget {
                       content: const Text("Are you sure you want to logout?"),
                       actions: [
                         TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.pop(context);
+
+                            await FirebaseAuth.instance.signOut();
+
+                            if (!context.mounted) return;
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Logged out successfully"),
+                              ),
+                            );
                           },
                           child: const Text("Cancel"),
                         ),

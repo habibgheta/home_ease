@@ -4,6 +4,7 @@ import 'package:home_ease/utils/app_strings.dart';
 import 'package:home_ease/widgets/custom_button.dart';
 import 'package:home_ease/widgets/custom_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -15,7 +16,8 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
 
   final TextEditingController emailController = TextEditingController();
 
@@ -31,7 +33,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    fullNameController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -50,7 +53,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
             password: passwordController.text.trim(),
           );
 
-      await userCredential.user!.sendEmailVerification();
+      User? user = userCredential.user;
+
+      if (user == null) {
+        throw FirebaseAuthException(
+          code: "user-not-found",
+          message: "Registration failed.",
+        );
+      }
+
+      await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
+        "firstName": firstNameController.text.trim(),
+        "lastName": lastNameController.text.trim(),
+        "email": emailController.text.trim(),
+        "photoUrl": "",
+        "createdAt": FieldValue.serverTimestamp(),
+      });
+
+      await user.sendEmailVerification();
+
+      await FirebaseAuth.instance.signOut();
 
       if (!mounted) return;
 
@@ -139,18 +161,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 35),
 
-                  CustomTextField(
-                    controller: fullNameController,
-                    labelText: "Full Name",
-                    hintText: "Enter your full name",
-                    prefixIcon: Icons.person_outline,
-                    textInputAction: TextInputAction.next,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Please enter your full name";
-                      }
-                      return null;
-                    },
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomTextField(
+                          controller: firstNameController,
+                          labelText: "First Name",
+                          hintText: "First name",
+                          prefixIcon: Icons.person_outline,
+                          textInputAction: TextInputAction.next,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Enter first name";
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(width: 15),
+
+                      Expanded(
+                        child: CustomTextField(
+                          controller: lastNameController,
+                          labelText: "Last Name",
+                          hintText: "Last name",
+                          prefixIcon: Icons.person_outline,
+                          textInputAction: TextInputAction.next,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Enter last name";
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 20),

@@ -5,6 +5,7 @@ import 'package:home_ease/screens/auth/login_screen.dart';
 import 'package:home_ease/screens/auth/register_screen.dart';
 import 'package:home_ease/screens/main_screen.dart';
 import 'theme/app_theme.dart';
+import 'package:home_ease/screens/auth/auth_wrapper.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,7 @@ class HomeEaseApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'HomeEase',
       theme: AppTheme.lightTheme,
-      home: const LoginScreen(),
+      home: const AuthWrapper(),
     );
   }
 }

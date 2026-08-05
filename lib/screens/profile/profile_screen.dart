@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:home_ease/screens/about/about_screen.dart';
 import 'package:home_ease/screens/settings/settings_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -59,10 +60,10 @@ class ProfileScreen extends StatelessWidget {
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const SettingsScreen(),
-                      ),
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
                   );
                 },
               ),
@@ -105,8 +106,12 @@ class ProfileScreen extends StatelessWidget {
                             child: const Text("Cancel"),
                           ),
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               Navigator.pop(context);
+
+                              await FirebaseAuth.instance.signOut();
+
+                              if (!context.mounted) return;
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
