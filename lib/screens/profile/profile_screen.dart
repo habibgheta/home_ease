@@ -2,12 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:home_ease/screens/about/about_screen.dart';
 import 'package:home_ease/screens/settings/settings_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:home_ease/models/app_user.dart';
+import 'package:home_ease/services/user_service.dart';
+import 'package:home_ease/screens/auth/login_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  AppUser? currentUser;
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    final user = await UserService.getCurrentUser();
+
+    if (!mounted) return;
+
+    setState(() {
+      currentUser = user;
+      isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       appBar: AppBar(title: const Text("My Profile")),
       body: SingleChildScrollView(
@@ -21,16 +54,16 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            const Text(
-              "Habib Gheta",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            Text(
+              "${currentUser?.firstName ?? ""} ${currentUser?.lastName ?? ""}",
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 5),
 
-            const Text(
-              "habib@example.com",
-              style: TextStyle(color: Colors.grey, fontSize: 16),
+            Text(
+              currentUser?.email ?? "",
+              style: const TextStyle(color: Colors.grey, fontSize: 16),
             ),
 
             const SizedBox(height: 30),
@@ -105,18 +138,21 @@ class ProfileScreen extends StatelessWidget {
                             },
                             child: const Text("Cancel"),
                           ),
+
                           ElevatedButton(
                             onPressed: () async {
                               Navigator.pop(context);
 
                               await FirebaseAuth.instance.signOut();
 
-                              if (!context.mounted) return;
+                              if (!mounted) return;
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Logged out successfully"),
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const LoginScreen(),
                                 ),
+                                (route) => false,
                               );
                             },
                             child: const Text("Logout"),

@@ -10,9 +10,20 @@ import 'package:home_ease/screens/favorites/favorites_screen.dart';
 import 'package:home_ease/screens/settings/settings_screen.dart';
 import 'package:home_ease/screens/about/about_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:home_ease/models/app_user.dart';
+import 'package:home_ease/services/user_service.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  AppUser? currentUser;
+
+  bool isLoading = true;
 
   static const List<ServiceCategory> _serviceCategories = [
     ServiceCategory(name: "Electrician", icon: Icons.electrical_services),
@@ -74,7 +85,27 @@ class HomeScreen extends StatelessWidget {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    final user = await UserService.getCurrentUser();
+
+    if (!mounted) return;
+
+    setState(() {
+      currentUser = user;
+      isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       appBar: AppBar(title: const Text("HomeEase"), centerTitle: true),
 
@@ -82,9 +113,11 @@ class HomeScreen extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const UserAccountsDrawerHeader(
-              accountName: Text("Habib Gheta"),
-              accountEmail: Text("habib@example.com"),
+            UserAccountsDrawerHeader(
+              accountName: Text(
+                "${currentUser?.firstName ?? ""} ${currentUser?.lastName ?? ""}",
+              ),
+              accountEmail: Text(currentUser?.email ?? ""),
               currentAccountPicture: const CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Padding(
@@ -184,8 +217,12 @@ class HomeScreen extends StatelessWidget {
                           child: const Text("Cancel"),
                         ),
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.pop(context);
+
+                            await FirebaseAuth.instance.signOut();
+
+                            if (!mounted) return;
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -211,8 +248,8 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Hello, Habib 👋",
+              Text(
+                "Hello, ${currentUser?.firstName ?? "User"} 👋",
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
 
