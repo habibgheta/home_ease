@@ -12,6 +12,7 @@ import 'package:home_ease/screens/about/about_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:home_ease/models/app_user.dart';
 import 'package:home_ease/services/user_service.dart';
+import 'package:home_ease/services/category_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,13 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool isLoading = true;
 
-  static const List<ServiceCategory> _serviceCategories = [
-    ServiceCategory(name: "Electrician", icon: Icons.electrical_services),
-    ServiceCategory(name: "Plumber", icon: Icons.plumbing),
-    ServiceCategory(name: "Carpenter", icon: Icons.handyman),
-    ServiceCategory(name: "Painter", icon: Icons.format_paint),
-    ServiceCategory(name: "Cleaner", icon: Icons.cleaning_services),
-  ];
+  List<ServiceCategory> serviceCategories = [];
 
   static const List<ServiceProvider> _serviceProviders = [
     ServiceProvider(
@@ -87,16 +82,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loadUser();
+    initializeData();
   }
 
-  Future<void> loadUser() async {
+  Future<void> initializeData() async {
     final user = await UserService.getCurrentUser();
+    final categories = await CategoryService.getCategories();
 
     if (!mounted) return;
 
     setState(() {
       currentUser = user;
+      serviceCategories = categories;
       isLoading = false;
     });
   }
@@ -203,16 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         TextButton(
                           onPressed: () async {
                             Navigator.pop(context);
-
-                            await FirebaseAuth.instance.signOut();
-
-                            if (!context.mounted) return;
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Logged out successfully"),
-                              ),
-                            );
                           },
                           child: const Text("Cancel"),
                         ),
@@ -285,20 +272,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 140,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: _serviceCategories.length,
+                  itemCount: serviceCategories.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     return SizedBox(
                       width: 120,
                       child: ServiceCard(
-                        category: _serviceCategories[index],
+                        category: serviceCategories[index],
                         onTap: () {
                           final selectedProviders = _serviceProviders
                               .where(
                                 (provider) =>
                                     provider.service ==
-                                    _serviceCategories[index].name,
+                                    serviceCategories[index].name,
                               )
                               .toList();
 
@@ -306,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ServiceProvidersScreen(
-                                serviceName: _serviceCategories[index].name,
+                                serviceName: serviceCategories[index].name,
                                 providers: selectedProviders,
                               ),
                             ),

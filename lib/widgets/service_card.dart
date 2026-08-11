@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/service_category.dart';
+import 'package:home_ease/models/service_category.dart';
+import 'package:home_ease/utils/icon_mapper.dart';
 
 class ServiceCard extends StatelessWidget {
   const ServiceCard({super.key, required this.category, this.onTap});
@@ -29,8 +30,14 @@ class ServiceCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(category.icon, size: 40, color: Colors.indigo),
+              Icon(
+                IconMapper.getIcon(category.iconName),
+                size: 40,
+                color: Colors.indigo,
+              ),
+
               const SizedBox(height: 10),
+
               Text(
                 category.name,
                 textAlign: TextAlign.center,
