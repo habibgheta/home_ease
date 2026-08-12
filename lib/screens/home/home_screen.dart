@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_ease/models/service_category.dart';
 import 'package:home_ease/widgets/service_card.dart';
-import 'package:home_ease/models/service_provider.dart';
 import 'package:home_ease/widgets/provider_card.dart';
 import 'package:home_ease/screens/home/service_providers_screen.dart';
 import 'package:home_ease/screens/main_screen.dart';
@@ -13,6 +12,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:home_ease/models/app_user.dart';
 import 'package:home_ease/services/user_service.dart';
 import 'package:home_ease/services/category_service.dart';
+import 'package:home_ease/services/provider_service.dart';
+import 'package:home_ease/screens/booking/booking_details_screen.dart';
+import 'package:home_ease/models/service_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,56 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<ServiceCategory> serviceCategories = [];
 
-  static const List<ServiceProvider> _serviceProviders = [
-    ServiceProvider(
-      name: "Rahul Sharma",
-      image: "assets/images/providers/provider1.jpg",
-      service: "Electrician",
-      rating: 4.8,
-      reviews: 120,
-      charges: 500,
-    ),
-    ServiceProvider(
-      name: "Aditya Singh",
-      image: "assets/images/providers/provider2.jpg",
-      service: "Electrician",
-      rating: 4.6,
-      reviews: 96,
-      charges: 450,
-    ),
-    ServiceProvider(
-      name: "Amit Patel",
-      image: "assets/images/providers/provider3.jpg",
-      service: "Plumber",
-      rating: 4.7,
-      reviews: 98,
-      charges: 450,
-    ),
-    ServiceProvider(
-      name: "Vikram Shah",
-      image: "assets/images/providers/provider4.jpg",
-      service: "Plumber",
-      rating: 4.9,
-      reviews: 145,
-      charges: 550,
-    ),
-    ServiceProvider(
-      name: "Mohan Verma",
-      image: "assets/images/providers/provider1.jpg",
-      service: "Painter",
-      rating: 4.9,
-      reviews: 170,
-      charges: 600,
-    ),
-    ServiceProvider(
-      name: "Ramesh Gupta",
-      image: "assets/images/providers/provider2.jpg",
-      service: "Cleaner",
-      rating: 4.6,
-      reviews: 80,
-      charges: 350,
-    ),
-  ];
+  List<ServiceProvider> topProviders = [];
 
   @override
   void initState() {
@@ -88,12 +41,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> initializeData() async {
     final user = await UserService.getCurrentUser();
     final categories = await CategoryService.getCategories();
+    final providers = await ProviderService.getTopProviders();
 
     if (!mounted) return;
 
     setState(() {
       currentUser = user;
       serviceCategories = categories;
+      topProviders = providers;
       isLoading = false;
     });
   }
@@ -281,20 +236,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: ServiceCard(
                         category: serviceCategories[index],
                         onTap: () {
-                          final selectedProviders = _serviceProviders
-                              .where(
-                                (provider) =>
-                                    provider.service ==
-                                    serviceCategories[index].name,
-                              )
-                              .toList();
-
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => ServiceProvidersScreen(
                                 serviceName: serviceCategories[index].name,
-                                providers: selectedProviders,
                               ),
                             ),
                           );
@@ -320,17 +266,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 16),
 
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _serviceProviders.length,
-                itemBuilder: (context, index) {
-                  return ProviderCard(
-                    provider: _serviceProviders[index],
-                    onTap: () {},
-                  );
-                },
-              ),
+              if (topProviders.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(child: Text("No professionals available")),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: topProviders.length,
+                  itemBuilder: (context, index) {
+                    final provider = topProviders[index];
+
+                    return ProviderCard(
+                      provider: provider,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                BookingDetailsScreen(provider: provider),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
             ],
           ),
         ),

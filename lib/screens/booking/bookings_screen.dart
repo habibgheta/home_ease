@@ -35,9 +35,13 @@ class BookingsScreen extends StatelessWidget {
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundImage: AssetImage(
-                                booking.provider.image,
-                              ),
+                              backgroundImage:
+                                  booking.provider.imageUrl.isNotEmpty
+                                  ? NetworkImage(booking.provider.imageUrl)
+                                  : null,
+                              child: booking.provider.imageUrl.isEmpty
+                                  ? const Icon(Icons.person, size: 30)
+                                  : null,
                             ),
 
                             const SizedBox(width: 15),
@@ -54,7 +58,7 @@ class BookingsScreen extends StatelessWidget {
                                     ),
                                   ),
 
-                                  Text(booking.provider.service),
+                                  Text(booking.provider.services.join(", ")),
                                 ],
                               ),
                             ),
@@ -67,7 +71,10 @@ class BookingsScreen extends StatelessWidget {
 
                         Text("Time : ${booking.timeSlot}"),
 
-                        Text("Charges : ₹${booking.provider.charges}/hour"),
+                        Text(
+                          "Charges : "
+                          "₹${booking.provider.chargesPerHour}/hour",
+                        ),
 
                         const SizedBox(height: 10),
 

@@ -52,7 +52,12 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 children: [
                   CircleAvatar(
                     radius: 45,
-                    backgroundImage: AssetImage(widget.provider.image),
+                    backgroundImage: widget.provider.imageUrl.isNotEmpty
+                        ? NetworkImage(widget.provider.imageUrl)
+                        : null,
+                    child: widget.provider.imageUrl.isEmpty
+                        ? const Icon(Icons.person, size: 45)
+                        : null,
                   ),
 
                   const SizedBox(height: 15),
@@ -68,7 +73,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    widget.provider.service,
+                    widget.provider.services.join(", "),
+                    textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 17, color: Colors.grey),
                   ),
 
@@ -82,7 +88,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         style: const TextStyle(fontSize: 16),
                       ),
                       Text(
-                        "₹${widget.provider.charges}/hour",
+                        "₹${widget.provider.chargesPerHour}/hour",
                         style: const TextStyle(fontSize: 16),
                       ),
                     ],
@@ -109,8 +115,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 return DropdownMenuItem<String>(value: date, child: Text(date));
               }).toList(),
               onChanged: (value) {
+                if (value == null) return;
+
                 setState(() {
-                  selectedDate = value!;
+                  selectedDate = value;
                 });
               },
             ),
@@ -133,8 +141,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 return DropdownMenuItem<String>(value: time, child: Text(time));
               }).toList(),
               onChanged: (value) {
+                if (value == null) return;
+
                 setState(() {
-                  selectedTime = value!;
+                  selectedTime = value;
                 });
               },
             ),
@@ -154,14 +164,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                          "This time slot is already booked. Please choose another slot.",
+                          "This time slot is already booked. "
+                          "Please choose another slot.",
                         ),
                       ),
                     );
                     return;
                   }
 
-                  Booking booking = Booking(
+                  final booking = Booking(
                     provider: widget.provider,
                     date: selectedDate,
                     timeSlot: selectedTime,

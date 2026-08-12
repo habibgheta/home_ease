@@ -15,7 +15,7 @@ class ProviderCard extends StatefulWidget {
 class _ProviderCardState extends State<ProviderCard> {
   @override
   Widget build(BuildContext context) {
-    bool isFavorite = FavoriteService.isFavorite(widget.provider);
+    final isFavorite = FavoriteService.isFavorite(widget.provider);
 
     return InkWell(
       borderRadius: BorderRadius.circular(12),
@@ -38,7 +38,12 @@ class _ProviderCardState extends State<ProviderCard> {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundImage: AssetImage(widget.provider.image),
+              backgroundImage: widget.provider.imageUrl.isNotEmpty
+                  ? NetworkImage(widget.provider.imageUrl)
+                  : null,
+              child: widget.provider.imageUrl.isEmpty
+                  ? const Icon(Icons.person, size: 30)
+                  : null,
             ),
 
             const SizedBox(width: 14),
@@ -57,7 +62,11 @@ class _ProviderCardState extends State<ProviderCard> {
 
                   const SizedBox(height: 4),
 
-                  Text(widget.provider.service),
+                  Text(
+                    widget.provider.services.join(", "),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
 
                   const SizedBox(height: 4),
 
@@ -66,9 +75,22 @@ class _ProviderCardState extends State<ProviderCard> {
                       const Icon(Icons.star, color: Colors.amber, size: 18),
                       const SizedBox(width: 4),
                       Text(
-                        "${widget.provider.rating} (${widget.provider.reviews} Reviews)",
+                        "${widget.provider.rating} "
+                        "(${widget.provider.reviews} Reviews)",
                       ),
                     ],
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  Text(
+                    widget.provider.status,
+                    style: TextStyle(
+                      color: widget.provider.status == "Available"
+                          ? Colors.green
+                          : Colors.red,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -87,15 +109,13 @@ class _ProviderCardState extends State<ProviderCard> {
                     });
                   },
                   icon: Icon(
-                    FavoriteService.isFavorite(widget.provider)
-                        ? Icons.favorite
-                        : Icons.favorite_border,
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
                     color: Colors.red,
                   ),
                 ),
 
                 Text(
-                  "₹${widget.provider.charges}/hr",
+                  "₹${widget.provider.chargesPerHour}/hr",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.indigo,
