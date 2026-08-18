@@ -1,26 +1,43 @@
-import 'package:home_ease/models/favorite.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:home_ease/models/service_provider.dart';
 
 class FavoriteService {
-  static final List<Favorite> favorites = [];
+  static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  static void addFavorite(ServiceProvider provider) {
-    if (!isFavorite(provider)) {
-      favorites.add(Favorite(provider: provider));
+  static CollectionReference<Map<String, dynamic>> _favoritesCollection() {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      throw Exception("User is not logged in.");
     }
+
+    return _firestore.collection("users").doc(user.uid).collection("favorites");
   }
 
-  static void removeFavorite(ServiceProvider provider) {
-    favorites.removeWhere(
-      (favorite) => favorite.provider.name == provider.name,
-    );
+  static Future<void> addFavorite(ServiceProvider provider) async {
+    await _favoritesCollection()
+        .doc(provider.employeeCode)
+        .set(provider.toMap());
   }
 
-  static bool isFavorite(ServiceProvider provider) {
-    return favorites.any((favorite) => favorite.provider.name == provider.name);
+  static Future<void> removeFavorite(ServiceProvider provider) async {
+    await _favoritesCollection().doc(provider.employeeCode).delete();
   }
 
-  static List<Favorite> getFavorites() {
-    return favorites;
+  static Future<bool> isFavorite(ServiceProvider provider) async {
+    final document = await _favoritesCollection()
+        .doc(provider.employeeCode)
+        .get();
+
+    return document.exists;
+  }
+
+  static Future<List<ServiceProvider>> getFavorites() async {
+    final snapshot = await _favoritesCollection().get();
+
+    return snapshot.docs.map((document) {
+      return ServiceProvider.fromMap(document.data());
+    }).toList();
   }
 }

@@ -13,10 +13,75 @@ class ProviderCard extends StatefulWidget {
 }
 
 class _ProviderCardState extends State<ProviderCard> {
+  bool isFavorite = false;
+  bool isLoadingFavorite = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadFavoriteStatus();
+  }
+
+  Future<void> loadFavoriteStatus() async {
+    try {
+      final result = await FavoriteService.isFavorite(widget.provider);
+
+      if (!mounted) return;
+
+      setState(() {
+        isFavorite = result;
+        isLoadingFavorite = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoadingFavorite = false;
+      });
+
+      debugPrint("Favorite status error: $e");
+    }
+  }
+
+  Future<void> toggleFavorite() async {
+    if (isLoadingFavorite) return;
+
+    setState(() {
+      isLoadingFavorite = true;
+    });
+
+    try {
+      if (isFavorite) {
+        await FavoriteService.removeFavorite(widget.provider);
+      } else {
+        await FavoriteService.addFavorite(widget.provider);
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        isFavorite = !isFavorite;
+        isLoadingFavorite = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoadingFavorite = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Unable to update favorites. Please try again."),
+        ),
+      );
+
+      debugPrint("Favorite update error: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isFavorite = FavoriteService.isFavorite(widget.provider);
-
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: widget.onTap,
@@ -42,7 +107,7 @@ class _ProviderCardState extends State<ProviderCard> {
                   ? NetworkImage(widget.provider.imageUrl)
                   : null,
               child: widget.provider.imageUrl.isEmpty
-                  ? const Icon(Icons.person, size: 30)
+                  ? const Icon(Icons.person)
                   : null,
             ),
 
@@ -62,11 +127,7 @@ class _ProviderCardState extends State<ProviderCard> {
 
                   const SizedBox(height: 4),
 
-                  Text(
-                    widget.provider.services.join(", "),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  Text(widget.provider.services.join(", ")),
 
                   const SizedBox(height: 4),
 
@@ -80,18 +141,6 @@ class _ProviderCardState extends State<ProviderCard> {
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 4),
-
-                  Text(
-                    widget.provider.status,
-                    style: TextStyle(
-                      color: widget.provider.status == "Available"
-                          ? Colors.green
-                          : Colors.red,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -99,19 +148,17 @@ class _ProviderCardState extends State<ProviderCard> {
             Column(
               children: [
                 IconButton(
-                  onPressed: () {
-                    setState(() {
-                      if (FavoriteService.isFavorite(widget.provider)) {
-                        FavoriteService.removeFavorite(widget.provider);
-                      } else {
-                        FavoriteService.addFavorite(widget.provider);
-                      }
-                    });
-                  },
-                  icon: Icon(
-                    isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: Colors.red,
-                  ),
+                  onPressed: toggleFavorite,
+                  icon: isLoadingFavorite
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: Colors.red,
+                        ),
                 ),
 
                 Text(
