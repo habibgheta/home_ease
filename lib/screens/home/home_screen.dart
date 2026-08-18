@@ -285,8 +285,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                BookingDetailsScreen(provider: provider),
+                            builder: (context) => BookingDetailsScreen(
+                              provider: provider,
+                              serviceName: provider.services.isNotEmpty
+                                  ? provider.services.first
+                                  : "Home Service",
+                            ),
                           ),
                         );
                       },

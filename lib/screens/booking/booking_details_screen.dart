@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:home_ease/models/service_provider.dart';
 import 'package:home_ease/models/booking.dart';
 import 'package:home_ease/services/booking_service.dart';
 
 class BookingDetailsScreen extends StatefulWidget {
-  const BookingDetailsScreen({super.key, required this.provider});
+  const BookingDetailsScreen({
+    super.key,
+    required this.provider,
+    required this.serviceName,
+  });
 
   final ServiceProvider provider;
+  final String serviceName;
 
   @override
   State<BookingDetailsScreen> createState() => _BookingDetailsScreenState();
 }
 
 class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
-  String selectedDate = "Today";
-
-  final List<String> dates = ["Today", "Tomorrow", "25 July", "26 July"];
+  String selectedDate = "";
 
   String selectedTime = "9:00 AM - 11:00 AM";
+
+  bool isLoading = false;
+
+  bool isSlotBooked = false;
+  bool isBookedByCurrentUser = false;
+
+  bool isCheckingSlot = false;
 
   final List<String> timeSlots = [
     "9:00 AM - 11:00 AM",
@@ -25,6 +36,188 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     "2:00 PM - 4:00 PM",
     "4:00 PM - 6:00 PM",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+
+    selectedDate = _formatDate(tomorrow);
+
+    checkSlotAvailability();
+  }
+
+  String _formatDate(DateTime date) {
+    final day = date.day.toString().padLeft(2, "0");
+    final month = date.month.toString().padLeft(2, "0");
+    final year = date.year.toString();
+
+    return "$year-$month-$day";
+  }
+
+  Future<void> checkSlotAvailability() async {
+    setState(() {
+      isCheckingSlot = true;
+      isSlotBooked = false;
+      isBookedByCurrentUser = false;
+    });
+
+    try {
+      final bookingUserId = await BookingService.getSlotBookingUserId(
+        providerId: widget.provider.employeeCode,
+        date: selectedDate,
+        timeSlot: selectedTime,
+      );
+
+      final currentUser = FirebaseAuth.instance.currentUser;
+
+      final booked = bookingUserId != null;
+      final bookedByCurrentUser = booked && bookingUserId == currentUser?.uid;
+
+      if (!mounted) return;
+
+      setState(() {
+        isSlotBooked = booked;
+        isBookedByCurrentUser = bookedByCurrentUser;
+        isCheckingSlot = false;
+      });
+
+      // Show the correct message
+      if (booked) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              bookedByCurrentUser
+                  ? "You have already booked this service provider for this time slot."
+                  : "Sorry, this service provider is already booked for this time slot.",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isCheckingSlot = false;
+      });
+
+      debugPrint("Slot availability error: $e");
+    }
+  }
+
+  Future<void> selectDate() async {
+    final now = DateTime.now();
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 30)),
+      initialDate: DateTime.parse(selectedDate),
+    );
+
+    if (pickedDate == null) return;
+
+    setState(() {
+      selectedDate = _formatDate(pickedDate);
+    });
+
+    await checkSlotAvailability();
+  }
+
+  Future<void> selectTimeSlot(String value) async {
+    setState(() {
+      selectedTime = value;
+    });
+
+    await checkSlotAvailability();
+  }
+
+  Future<void> bookService() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please login to book a service.")),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // Final availability check before creating the booking
+      final alreadyBooked = await BookingService.isSlotBooked(
+        providerId: widget.provider.employeeCode,
+        date: selectedDate,
+        timeSlot: selectedTime,
+      );
+
+      if (alreadyBooked) {
+        if (!mounted) return;
+
+        setState(() {
+          isSlotBooked = true;
+          isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Sorry, this service provider is already booked "
+              "for this time slot.",
+            ),
+          ),
+        );
+
+        return;
+      }
+
+      final bookingId = BookingService.createBookingId(
+        providerId: widget.provider.employeeCode,
+        date: selectedDate,
+        timeSlot: selectedTime,
+      );
+
+      final booking = Booking(
+        provider: widget.provider,
+        serviceName: widget.serviceName,
+        userId: user.uid,
+        date: selectedDate,
+        timeSlot: selectedTime,
+        bookingId: bookingId,
+        createdAt: DateTime.now(),
+      );
+
+      await BookingService.addBooking(booking);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Booking Successful")));
+
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Unable to complete booking. Please try again."),
+        ),
+      );
+
+      debugPrint("Booking error: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +266,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    widget.provider.services.join(", "),
-                    textAlign: TextAlign.center,
+                    widget.serviceName,
                     style: const TextStyle(fontSize: 17, color: Colors.grey),
                   ),
 
@@ -99,39 +291,46 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
             const SizedBox(height: 25),
 
-            const Row(
-              children: [
-                Text(
-                  "Select Date",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Select Date",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
 
-            DropdownButton<String>(
-              value: selectedDate,
-              isExpanded: true,
-              items: dates.map((date) {
-                return DropdownMenuItem<String>(value: date, child: Text(date));
-              }).toList(),
-              onChanged: (value) {
-                if (value == null) return;
+            const SizedBox(height: 8),
 
-                setState(() {
-                  selectedDate = value;
-                });
-              },
+            InkWell(
+              onTap: isLoading ? null : selectDate,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(selectedDate),
+                    const Icon(Icons.calendar_month),
+                  ],
+                ),
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            const Row(
-              children: [
-                Text(
-                  "Select Time Slot",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Select Time Slot",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
 
             DropdownButton<String>(
@@ -140,14 +339,30 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               items: timeSlots.map((time) {
                 return DropdownMenuItem<String>(value: time, child: Text(time));
               }).toList(),
-              onChanged: (value) {
-                if (value == null) return;
-
-                setState(() {
-                  selectedTime = value;
-                });
-              },
+              onChanged: isLoading
+                  ? null
+                  : (value) {
+                      if (value == null) return;
+                      selectTimeSlot(value);
+                    },
             ),
+
+            if (!isCheckingSlot && isSlotBooked)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    isBookedByCurrentUser
+                        ? "You have already booked this service provider for this time slot."
+                        : "Sorry, this service provider is already booked for this time slot.",
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
 
             const Spacer(),
 
@@ -155,39 +370,16 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {
-                  if (BookingService.isSlotBooked(
-                    providerName: widget.provider.name,
-                    date: selectedDate,
-                    timeSlot: selectedTime,
-                  )) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          "This time slot is already booked. "
-                          "Please choose another slot.",
-                        ),
-                      ),
-                    );
-                    return;
-                  }
-
-                  final booking = Booking(
-                    provider: widget.provider,
-                    date: selectedDate,
-                    timeSlot: selectedTime,
-                    bookingId: DateTime.now().millisecondsSinceEpoch.toString(),
-                  );
-
-                  BookingService.addBooking(booking);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Booking Successful")),
-                  );
-
-                  Navigator.pop(context);
-                },
-                child: const Text("Book Now"),
+                onPressed: isLoading || isCheckingSlot || isSlotBooked
+                    ? null
+                    : bookService,
+                child: isLoading
+                    ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(isSlotBooked ? "Time Slot Unavailable" : "Book Now"),
               ),
             ),
           ],

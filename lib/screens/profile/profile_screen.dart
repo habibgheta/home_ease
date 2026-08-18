@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:home_ease/screens/about/about_screen.dart';
 import 'package:home_ease/screens/settings/settings_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:home_ease/models/app_user.dart';
 import 'package:home_ease/services/user_service.dart';
 import 'package:home_ease/screens/auth/login_screen.dart';
