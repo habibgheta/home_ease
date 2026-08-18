@@ -34,7 +34,13 @@ class BookingService {
 
     final document = await _bookingsCollection.doc(bookingId).get();
 
-    return document.exists;
+    if (!document.exists) {
+      return false;
+    }
+
+    final data = document.data();
+
+    return data?["status"] == "Booked";
   }
 
   static Future<void> addBooking(Booking booking) async {
@@ -73,6 +79,11 @@ class BookingService {
     }
 
     final data = document.data();
+
+    // A cancelled booking should not block the time slot
+    if (data?["status"] != "Booked") {
+      return null;
+    }
 
     return data?["userId"] as String?;
   }

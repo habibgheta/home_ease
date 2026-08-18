@@ -42,6 +42,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
       setState(() {
         bookings = result;
         isLoading = false;
+        errorMessage = null;
       });
     } catch (e) {
       if (!mounted) return;
@@ -53,6 +54,59 @@ class _BookingsScreenState extends State<BookingsScreen> {
 
       debugPrint("Booking loading error: $e");
     }
+  }
+
+  Future<void> cancelBooking(Booking booking) async {
+    try {
+      await BookingService.cancelBooking(booking.bookingId);
+
+      if (!mounted) return;
+
+      await loadBookings();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Booking cancelled successfully.")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Unable to cancel booking. Please try again."),
+        ),
+      );
+
+      debugPrint("Cancel booking error: $e");
+    }
+  }
+
+  void showCancelConfirmation(Booking booking) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Cancel Booking"),
+          content: const Text("Are you sure you want to cancel this booking?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("No"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                cancelBooking(booking);
+              },
+              child: const Text("Yes, Cancel"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -88,6 +142,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
       itemCount: bookings.length,
       itemBuilder: (context, index) {
         final booking = bookings[index];
+
+        final isCancelled = booking.status == "Cancelled";
 
         return Card(
           margin: const EdgeInsets.only(bottom: 15),
@@ -146,7 +202,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: booking.status == "Cancelled"
+                    color: isCancelled
                         ? Colors.red.shade100
                         : Colors.green.shade100,
                     borderRadius: BorderRadius.circular(20),
@@ -154,13 +210,26 @@ class _BookingsScreenState extends State<BookingsScreen> {
                   child: Text(
                     booking.status,
                     style: TextStyle(
-                      color: booking.status == "Cancelled"
-                          ? Colors.red
-                          : Colors.green,
+                      color: isCancelled ? Colors.red : Colors.green,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
+
+                if (!isCancelled) ...[
+                  const SizedBox(height: 12),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        showCancelConfirmation(booking);
+                      },
+                      icon: const Icon(Icons.cancel_outlined),
+                      label: const Text("Cancel Booking"),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
