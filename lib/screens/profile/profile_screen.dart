@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:home_ease/models/app_user.dart';
 import 'package:home_ease/services/user_service.dart';
 import 'package:home_ease/screens/auth/login_screen.dart';
+import 'package:home_ease/screens/booking/bookings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -81,7 +82,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 leading: const Icon(Icons.history),
                 title: const Text("Booking History"),
                 trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BookingsScreen(),
+                    ),
+                  );
+                },
               ),
             ),
 

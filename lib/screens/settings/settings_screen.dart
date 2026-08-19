@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_ease/main.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -9,12 +10,14 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool notifications = true;
-  bool darkMode = false;
 
   @override
   Widget build(BuildContext context) {
+    final bool darkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(title: const Text("Settings")),
+
       body: ListView(
         children: [
           SwitchListTile(
@@ -37,9 +40,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: const Text("Enable dark theme"),
             value: darkMode,
             onChanged: (value) {
-              setState(() {
-                darkMode = value;
-              });
+              HomeEaseApp.themeMode.value = value
+                  ? ThemeMode.dark
+                  : ThemeMode.light;
             },
           ),
 
