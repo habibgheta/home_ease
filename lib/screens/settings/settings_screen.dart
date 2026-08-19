@@ -9,8 +9,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool notifications = true;
-
   @override
   Widget build(BuildContext context) {
     final bool darkMode = Theme.of(context).brightness == Brightness.dark;
@@ -20,20 +18,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       body: ListView(
         children: [
-          SwitchListTile(
-            secondary: const Icon(Icons.notifications),
-            title: const Text("Notifications"),
-            subtitle: const Text("Receive booking notifications"),
-            value: notifications,
-            onChanged: (value) {
-              setState(() {
-                notifications = value;
-              });
-            },
-          ),
-
-          const Divider(),
-
           SwitchListTile(
             secondary: const Icon(Icons.dark_mode),
             title: const Text("Dark Mode"),

@@ -68,14 +68,23 @@ class _HomeScreenState extends State<HomeScreen> {
             UserAccountsDrawerHeader(
               accountName: Text(
                 "${currentUser?.firstName ?? ""} ${currentUser?.lastName ?? ""}",
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              accountEmail: Text(currentUser?.email ?? ""),
+              accountEmail: Text(
+                currentUser?.email ?? "",
+                style: const TextStyle(color: Colors.black),
+              ),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 backgroundImage: currentUser?.photoUrl.isNotEmpty == true
                     ? NetworkImage(currentUser!.photoUrl)
-                    : const AssetImage("assets/images/profile/profile.jpg")
-                          as ImageProvider,
+                    : null,
+                child: currentUser?.photoUrl.isEmpty != false
+                    ? const Icon(Icons.person, color: Colors.blueGrey, size: 35)
+                    : null,
               ),
             ),
 
