@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:home_ease/utils/app_colors.dart';
 import 'package:home_ease/utils/app_strings.dart';
@@ -5,6 +7,8 @@ import 'package:home_ease/widgets/custom_button.dart';
 import 'package:home_ease/widgets/custom_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:home_ease/services/cloudinary_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -17,6 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController firstNameController = TextEditingController();
+
   final TextEditingController lastNameController = TextEditingController();
 
   final TextEditingController emailController = TextEditingController();
@@ -31,6 +36,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool isLoading = false;
 
+  XFile? selectedImage;
+  Uint8List? selectedImageBytes;
+
   @override
   void dispose() {
     firstNameController.dispose();
@@ -38,7 +46,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+
     super.dispose();
+  }
+
+  Future<void> pickProfileImage() async {
+    final picker = ImagePicker();
+
+    final image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image == null) return;
+
+    final bytes = await image.readAsBytes();
+
+    if (!mounted) return;
+
+    setState(() {
+      selectedImage = image;
+      selectedImageBytes = bytes;
+    });
   }
 
   Future<void> registerUser() async {
@@ -62,11 +88,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
 
+      String photoUrl = "";
+
+      if (selectedImage != null) {
+        final uploadedUrl = await CloudinaryService.uploadImage(selectedImage!);
+
+        if (uploadedUrl == null) {
+          throw Exception("Image upload failed.");
+        }
+
+        photoUrl = uploadedUrl;
+      }
+
       await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
         "firstName": firstNameController.text.trim(),
         "lastName": lastNameController.text.trim(),
         "email": emailController.text.trim(),
-        "photoUrl": "",
+        "photoUrl": photoUrl,
         "createdAt": FieldValue.serverTimestamp(),
       });
 
@@ -118,10 +156,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Something went wrong. Please try again."),
+        SnackBar(
+          content: Text(
+            e.toString().contains("Image upload failed")
+                ? "Profile image upload failed. Please try again."
+                : "Something went wrong. Please try again.",
+          ),
         ),
       );
+
+      debugPrint("Registration error: $e");
     } finally {
       if (mounted) {
         setState(() {
@@ -135,6 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.register)),
+
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -144,6 +189,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 children: [
                   Image.asset('assets/images/home_ease_logo.png', height: 140),
+
+                  const SizedBox(height: 25),
+
+                  GestureDetector(
+                    onTap: isLoading ? null : pickProfileImage,
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 55,
+                          backgroundImage: selectedImageBytes != null
+                              ? MemoryImage(selectedImageBytes!)
+                              : null,
+                          child: selectedImageBytes == null
+                              ? const Icon(Icons.person, size: 55)
+                              : null,
+                        ),
+
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: CircleAvatar(
+                            radius: 18,
+                            child: const Icon(Icons.camera_alt, size: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  const Text(
+                    "Tap to select profile picture",
+                    style: TextStyle(color: Colors.blueGrey),
+                  ),
 
                   const SizedBox(height: 25),
 
@@ -174,6 +254,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             if (value == null || value.trim().isEmpty) {
                               return "Enter first name";
                             }
+
                             return null;
                           },
                         ),
@@ -192,6 +273,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             if (value == null || value.trim().isEmpty) {
                               return "Enter last name";
                             }
+
                             return null;
                           },
                         ),

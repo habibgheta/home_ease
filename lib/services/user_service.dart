@@ -21,4 +21,25 @@ class UserService {
 
     return AppUser.fromMap(document.data()!);
   }
+
+  static Future<void> updateProfile({
+    required String firstName,
+    required String lastName,
+    required String photoUrl,
+  }) async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+
+    if (firebaseUser == null) {
+      throw Exception("User is not logged in.");
+    }
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(firebaseUser.uid)
+        .update({
+          "firstName": firstName,
+          "lastName": lastName,
+          "photoUrl": photoUrl,
+        });
+  }
 }

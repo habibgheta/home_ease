@@ -6,6 +6,7 @@ import 'package:home_ease/models/app_user.dart';
 import 'package:home_ease/services/user_service.dart';
 import 'package:home_ease/screens/auth/login_screen.dart';
 import 'package:home_ease/screens/booking/bookings_screen.dart';
+import 'package:home_ease/screens/profile/edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -47,9 +48,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 55,
-              backgroundImage: AssetImage("assets/images/profile/profile.jpg"),
+              backgroundImage: currentUser?.photoUrl.isNotEmpty == true
+                  ? NetworkImage(currentUser!.photoUrl)
+                  : const AssetImage("assets/images/profile/profile.jpg")
+                        as ImageProvider,
             ),
 
             const SizedBox(height: 20),
@@ -63,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             Text(
               currentUser?.email ?? "",
-              style: const TextStyle(color: Colors.grey, fontSize: 16),
+              style: const TextStyle(color: Colors.blueGrey, fontSize: 16),
             ),
 
             const SizedBox(height: 30),
@@ -73,7 +77,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 leading: const Icon(Icons.person),
                 title: const Text("Edit Profile"),
                 trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () {},
+                onTap: () async {
+                  if (currentUser == null) return;
+
+                  final result = await Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          EditProfileScreen(user: currentUser!),
+                    ),
+                  );
+
+                  if (result == true) {
+                    loadUser();
+                  }
+                },
               ),
             ),
 

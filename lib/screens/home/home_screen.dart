@@ -70,14 +70,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 "${currentUser?.firstName ?? ""} ${currentUser?.lastName ?? ""}",
               ),
               accountEmail: Text(currentUser?.email ?? ""),
-              currentAccountPicture: const CircleAvatar(
+              currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
-                child: Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Image(
-                    image: AssetImage("assets/images/home_ease_logo.png"),
-                  ),
-                ),
+                backgroundImage: currentUser?.photoUrl.isNotEmpty == true
+                    ? NetworkImage(currentUser!.photoUrl)
+                    : const AssetImage("assets/images/profile/profile.jpg")
+                          as ImageProvider,
               ),
             ),
 
@@ -200,18 +198,6 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 "Find the service you need today.",
                 style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
-              ),
-
-              const SizedBox(height: 24),
-
-              TextField(
-                decoration: InputDecoration(
-                  hintText: "Search services...",
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
               ),
 
               const SizedBox(height: 24),

@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:home_ease/firebase_options.dart';
-import 'package:home_ease/screens/auth/auth_wrapper.dart';
+import 'package:home_ease/screens/splash/splash_screen.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
@@ -47,7 +47,7 @@ class _HomeEaseAppState extends State<HomeEaseApp> {
 
           themeMode: themeMode,
 
-          home: const AuthWrapper(),
+          home: const SplashScreen(),
         );
       },
     );
