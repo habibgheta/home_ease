@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:home_ease/screens/admin/providers/admin_providers_screen.dart';
+import 'package:home_ease/screens/admin/categories/admin_categories_screen.dart';
+import 'package:home_ease/screens/admin/bookings/admin_bookings_screen.dart';
+import 'package:home_ease/screens/admin/users/admin_users_screen.dart';
 
 class AdminScreen extends StatelessWidget {
   const AdminScreen({super.key});
@@ -24,17 +28,53 @@ class AdminScreen extends StatelessWidget {
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
         children: [
-          _AdminOption(icon: Icons.category, title: "Categories", onTap: () {}),
+          _AdminOption(
+            icon: Icons.category,
+            title: "Categories",
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminCategoriesScreen(),
+                ),
+              );
+            },
+          ),
           _AdminOption(
             icon: Icons.engineering,
             title: "Service Providers",
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminProvidersScreen(),
+                ),
+              );
+            },
           ),
-          _AdminOption(icon: Icons.people, title: "Users", onTap: () {}),
+          _AdminOption(
+            icon: Icons.people,
+            title: "Users",
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminUsersScreen(),
+                ),
+              );
+            },
+          ),
           _AdminOption(
             icon: Icons.calendar_month,
             title: "Bookings",
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminBookingsScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),
