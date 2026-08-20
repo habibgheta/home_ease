@@ -40,7 +40,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         builder: (_) => AlertDialog(
           title: const Text("Email Sent"),
           content: const Text(
-            "A password reset link has been sent to your email.",
+            "If an account exists with this email, a password reset link "
+            "has been sent to it.",
           ),
           actions: [
             TextButton(
@@ -60,6 +61,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         case "invalid-email":
           message = "Please enter a valid email.";
           break;
+
+        case "user-not-found":
+          message = "No account exists with this email.";
+          break;
+
+        case "network-request-failed":
+          message = "Please check your internet connection.";
+          break;
+
         default:
           message = e.message ?? "Something went wrong.";
       }
@@ -82,6 +92,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Forgot Password")),
+
       body: Padding(
         padding: const EdgeInsets.all(25),
         child: Form(
@@ -112,39 +123,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     return "Please enter your email";
                   }
 
+                  if (!value.contains("@") || !value.contains(".")) {
+                    return "Please enter a valid email";
+                  }
+
                   return null;
                 },
-              ),
-
-              const SizedBox(height: 15),
-
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.amber.shade300),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.info_outline, color: Colors.orange),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        "Password reset is intended for verified email accounts. "
-                        "If you haven't verified your email yet, please verify it using "
-                        "the verification email sent during registration.",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade800,
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
 
               const SizedBox(height: 30),

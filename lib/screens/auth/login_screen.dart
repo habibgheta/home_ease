@@ -115,10 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   Text(
                     AppStrings.signIn,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blueGrey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.blueGrey),
                   ),
 
                   const SizedBox(height: 35),
@@ -212,7 +209,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(AppStrings.dontHaveAccount),
-
                       TextButton(
                         onPressed: () {
                           Navigator.push(

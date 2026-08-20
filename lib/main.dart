@@ -5,6 +5,7 @@ import 'package:home_ease/screens/splash/splash_screen.dart';
 import 'package:home_ease/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

@@ -32,11 +32,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       TextEditingController();
 
   bool obscurePassword = true;
+
   bool obscureConfirmPassword = true;
 
   bool isLoading = false;
 
   XFile? selectedImage;
+
   Uint8List? selectedImageBytes;
 
   @override
@@ -73,6 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         isLoading = true;
       });
 
+      // Create Firebase Authentication account
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
             email: emailController.text.trim(),
@@ -83,13 +86,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (user == null) {
         throw FirebaseAuthException(
-          code: "user-not-found",
+          code: "registration-failed",
           message: "Registration failed.",
         );
       }
 
       String photoUrl = "";
 
+      // Upload profile image if selected
       if (selectedImage != null) {
         final uploadedUrl = await CloudinaryService.uploadImage(selectedImage!);
 
@@ -100,6 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         photoUrl = uploadedUrl;
       }
 
+      // Save user information in Firestore
       await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
         "firstName": firstNameController.text.trim(),
         "lastName": lastNameController.text.trim(),
@@ -108,20 +113,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
         "createdAt": FieldValue.serverTimestamp(),
       });
 
-      await user.sendEmailVerification();
-
+      // Registration is complete.
+      // Sign out so that the user has to login normally.
       await FirebaseAuth.instance.signOut();
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            "Account created successfully. Please verify your email.",
-          ),
+          content: Text("Account created successfully. Please login to continue."),
         ),
       );
 
+      // Return to Login screen
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       String message;
@@ -236,7 +240,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   Text(
                     "Create your account to continue",
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 16, color: Colors.blueGrey),
                   ),
 
                   const SizedBox(height: 35),
