@@ -8,6 +8,25 @@ The idea behind HomeEase is similar to the concept used by Urban Company, where 
 
 This project was developed by<b> Habib Gheta </b>as part of industrial training (Internship) @NASTECH to gain practical experience in Flutter, Firebase, Cloud Firestore, Cloudinary, authentication, database management and responsive application development.
 
+## Technology Stack
+
+### Frontend
+
+- Flutter
+- Dart
+
+### Backend and Services
+
+- Firebase Authentication
+- Cloud Firestore
+- Cloudinary
+
+### Development Tools
+
+- Android Studio
+- Git
+- GitHub
+
 ## Features
 
 ### User Authentication
@@ -171,27 +190,6 @@ The application includes a separate admin panel for managing the application's d
 - User-specific Firestore data access
 - Admin-specific Firestore permissions
 
-## Technology Stack
-
-### Frontend
-
-- Flutter
-- Dart
-- Material Design
-
-### Backend and Services
-
-- Firebase Authentication
-- Cloud Firestore
-- Cloudinary
-
-### Development Tools
-
-- Android Studio
-- Visual Studio Code
-- Git
-- GitHub
-
 ## Application Flow
 
 ### User Flow
@@ -243,7 +241,7 @@ lib/
 
 ## Firebase
 
-Firebase is used for authentication and application data management.
+Firebase is used as Backend-as-a-Service (BAAS).
 
 ### Firebase Authentication
 
@@ -270,7 +268,7 @@ Firestore security rules are implemented to restrict access to user and admin da
 
 ## Cloudinary
 
-Cloudinary is used to store profile images uploaded by users.
+Cloudinary is used to store profile images uploaded by users, service providers and admins.
 
 When a user selects a profile picture:
 
@@ -344,7 +342,6 @@ The following features can be considered for future versions:
 - Reviews and ratings from actual users
 - Advanced provider availability management
 - Improved admin analytics
-- Service provider registration
 
 ## Urban Company Inspiration
 
@@ -356,7 +353,7 @@ HomeEase is not an official Urban Company application and is not a direct clone 
 
 ## Disclaimer
 
-HomeEase is an independent educational project developed as part of industrial training.
+HomeEase is an independent educational project developed as part of Industrial Training (Internship) @NASTECH
 
 The project is not affiliated with, sponsored by, or endorsed by Urban Company.
 
@@ -364,8 +361,10 @@ Urban Company is a trademark of its respective owner.
 
 ## Author
 
-**Habib Gheta**
+**Gheta Habib Ismail**
 
 Diploma in Information Technology
+
+Intern @NASTECH
 
 Built using Flutter, Firebase and Cloudinary.
