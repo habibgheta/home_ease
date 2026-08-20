@@ -29,8 +29,8 @@ class ServiceProvider {
       description: map["description"] ?? "",
       status: map["status"] ?? "Available",
       rating: (map["rating"] ?? 0).toDouble(),
-      reviews: map["reviews"] ?? 0,
-      chargesPerHour: map["chargesPerHour"] ?? 0,
+      reviews: (map["reviews"] ?? 0).toInt(),
+      chargesPerHour: (map["chargesPerHour"] ?? 0).toInt(),
       imageUrl: map["imageUrl"] ?? "",
     );
   }
