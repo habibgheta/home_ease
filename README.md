@@ -8,7 +8,7 @@ The idea behind HomeEase is similar to the concept used by Urban Company, where 
 
 This project was developed by<b> Habib Gheta </b>as part of industrial training (Internship) @NASTECH to gain practical experience in Flutter, Firebase, Cloud Firestore, Cloudinary, authentication, database management and responsive application development.
 
-## Technology Stack
+## Tech Stack
 
 ### Frontend
 
@@ -31,33 +31,21 @@ This project was developed by<b> Habib Gheta </b>as part of industrial training 
 
 ### User Authentication
 
-- User registration with first name, last name, email and password
+- User Registration
 - Firebase Email/Password Authentication
-- Automatic login using Firebase authentication state
 - Forgot password functionality
 - Password reset through email
 - Password visibility toggle
-- Confirm password validation
 - Email and password validation
 - Duplicate email detection
-- Loading indicators during authentication
 - Error handling with SnackBars
-- Logout with confirmation
-- Automatic navigation based on authentication state
+- Logout with alert dialog confirmation
 
 ### User Profile
 
-- View user profile
-- Display first name and last name
-- Display registered email
 - Edit profile information
-- Email cannot be changed from the profile
-- Upload profile picture
-- Select profile picture from device gallery
+- Upload profile picture from device gallery
 - Store profile images using Cloudinary
-- Display uploaded profile picture
-- Person icon shown when no profile picture is available
-- Automatically refresh profile information after editing
 
 ### Service Categories
 
@@ -73,7 +61,6 @@ This project was developed by<b> Habib Gheta </b>as part of industrial training 
 - View provider information
 - Provider employee code
 - Provider services
-- Provider availability and status
 - Provider rating
 - Provider hourly charges
 - Admin can add service providers
@@ -99,12 +86,6 @@ This project was developed by<b> Habib Gheta </b>as part of industrial training 
 - Book a service
 - View booking history
 - View booking details
-- View provider name
-- View service name
-- View booking date
-- View time slot
-- View service charges
-- View booking status
 - Cancel bookings
 - Prevent unavailable or booked time slots from being selected
 - Store bookings in Cloud Firestore
@@ -116,12 +97,10 @@ This project was developed by<b> Habib Gheta </b>as part of industrial training 
 - Theme switching
 - Theme preference is saved
 - Selected theme is restored when the application is opened again
-- Language information
-- Application version information
 
 ### Admin Panel
 
-The application includes a separate admin panel for managing the application's data.
+The application includes a separate admin panel for performing CRUD operations on the application's data.
 
 #### Categories
 
@@ -162,8 +141,7 @@ The application includes a separate admin panel for managing the application's d
 - Users section
 - Bookings section
 - Responsive admin layout
-- Single-column layout on mobile devices
-- Single-column layout on tablets
+- Single-column layout on mobile and tablet
 - Two-column layout on desktop
 - Dark and light theme support
 - Admin logout
@@ -171,14 +149,12 @@ The application includes a separate admin panel for managing the application's d
 ## Additional Features
 
 - Splash screen with HomeEase branding
-- Five-second splash screen
-- Automatic navigation from splash screen
-- Authentication-based navigation after splash screen
-- Automatic redirection of normal users to the Home screen
-- Automatic redirection of administrators to the Admin Panel
+- Authentication-based navigation after splash screen 
+  - Automatic redirection of normal users to the Home screen
+  - Automatic redirection of admin to the Admin Panel
+- Auto-login feature (i.e. If a user was logged-in the app when they closed the application, they will remain logged-in the next time they open the application)
 - Responsive layouts for different screen sizes
-- Dark theme support throughout the application
-- Light theme support throughout the application
+- Light and Dark theme support throughout the application
 - Loading indicators during data loading
 - SnackBar messages for successful and failed operations
 - Confirmation dialogs for important actions
