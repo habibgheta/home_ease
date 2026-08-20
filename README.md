@@ -6,7 +6,7 @@ The idea behind HomeEase is similar to the concept used by Urban Company, where 
 
 >HomeEase is an independent project inspired by the home-service marketplace concept of Urban Company. It is not an official Urban Company application or a direct clone of Urban Company.
 
-This project was developed by<b> Habib Gheta </b>as part of industrial training (Internship) @NASTECH to gain practical experience in Flutter, Firebase, Cloud Firestore, Cloudinary, authentication, database management and responsive application development.
+This project is developed by<b> Habib Gheta </b>as part of Industrial Training (Internship) @NASTECH to gain practical experience in Flutter, Firebase, Cloud Firestore, Cloudinary, authentication, database management and responsive application development.
 
 ## Tech Stack
 
