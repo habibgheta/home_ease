@@ -202,15 +202,13 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: isCancelled
-                        ? Colors.red.shade100
-                        : Colors.green.shade100,
+                    color: isCancelled ? Colors.red.shade100 : Colors.green,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     booking.status,
-                    style: TextStyle(
-                      color: isCancelled ? Colors.red : Colors.green,
+                    style: const TextStyle(
+                      color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

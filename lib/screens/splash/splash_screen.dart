@@ -27,6 +27,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    final titleColor = isDarkMode ? Colors.white : const Color(0xFF172B6B);
+
+    final developedByColor = isDarkMode
+        ? Colors.blueGrey.shade300
+        : Colors.blueGrey;
+
+    final nameColor = isDarkMode ? Colors.white : const Color(0xFF172B6B);
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -44,12 +54,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
                     const SizedBox(height: 15),
 
-                    const Text(
+                    Text(
                       "HomeEase",
                       style: TextStyle(
                         fontSize: 55,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF172B6B),
+                        color: titleColor,
                       ),
                     ),
                   ],
@@ -61,19 +71,19 @@ class _SplashScreenState extends State<SplashScreen> {
               padding: const EdgeInsets.only(bottom: 25),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     "Developed by",
-                    style: TextStyle(fontSize: 18, color: Colors.blueGrey),
+                    style: TextStyle(fontSize: 18, color: developedByColor),
                   ),
 
                   const SizedBox(height: 2),
 
-                  const Text(
+                  Text(
                     "Habib Gheta",
                     style: TextStyle(
                       fontSize: 34,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF172B6B),
+                      color: nameColor,
                     ),
                   ),
                 ],

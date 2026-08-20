@@ -125,6 +125,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final hasNewImage = selectedImageBytes != null;
     final hasExistingImage = widget.user.photoUrl.isNotEmpty;
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(title: const Text("Edit Profile")),
       body: SingleChildScrollView(
@@ -146,7 +148,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ? const Icon(Icons.person, size: 60)
                         : null,
                   ),
-
                   Positioned(
                     right: 0,
                     bottom: 0,
@@ -171,13 +172,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             TextField(
               controller: emailController,
               readOnly: true,
-              style: const TextStyle(color: Colors.blueGrey),
-              decoration: const InputDecoration(
+              style: TextStyle(
+                color: isDarkMode ? Colors.white70 : Colors.blueGrey,
+              ),
+              decoration: InputDecoration(
                 labelText: "Email",
-                prefixIcon: Icon(Icons.email_outlined),
-                border: OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.email_outlined),
+                border: const OutlineInputBorder(),
                 filled: true,
-                fillColor: Color(0xFFE8EAF6),
+                fillColor: isDarkMode
+                    ? const Color(0xff1E1E1E)
+                    : const Color(0xFFE8EAF6),
               ),
             ),
 

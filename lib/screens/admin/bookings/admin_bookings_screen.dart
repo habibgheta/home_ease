@@ -170,6 +170,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                                 ),
                               ),
                             ),
+
                             PopupMenuButton<String>(
                               onSelected: (value) {
                                 if (value == "cancel") {
@@ -225,10 +226,8 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                           ),
                           child: Text(
                             status,
-                            style: TextStyle(
-                              color: status == "Cancelled"
-                                  ? Colors.red
-                                  : Colors.green,
+                            style: const TextStyle(
+                              color: Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_ease/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -23,7 +24,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text("Dark Mode"),
             subtitle: const Text("Enable dark theme"),
             value: darkMode,
-            onChanged: (value) {
+            onChanged: (value) async {
+              final preferences = await SharedPreferences.getInstance();
+
+              await preferences.setString(
+                "themeMode",
+                value ? "dark" : "light",
+              );
+
               HomeEaseApp.themeMode.value = value
                   ? ThemeMode.dark
                   : ThemeMode.light;

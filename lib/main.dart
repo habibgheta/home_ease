@@ -2,12 +2,27 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:home_ease/firebase_options.dart';
 import 'package:home_ease/screens/splash/splash_screen.dart';
-import 'theme/app_theme.dart';
+import 'package:home_ease/theme/app_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  final preferences = await SharedPreferences.getInstance();
+
+  final savedTheme = preferences.getString("themeMode");
+
+  ThemeMode initialThemeMode;
+
+  if (savedTheme == "dark") {
+    initialThemeMode = ThemeMode.dark;
+  } else {
+    initialThemeMode = ThemeMode.light;
+  }
+
+  HomeEaseApp.themeMode.value = initialThemeMode;
 
   runApp(const HomeEaseApp());
 }
@@ -34,17 +49,7 @@ class _HomeEaseAppState extends State<HomeEaseApp> {
           title: 'HomeEase',
 
           theme: AppTheme.lightTheme,
-
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.indigo,
-              brightness: Brightness.dark,
-            ),
-            cardColor: const Color(0xFF1E1E1E),
-            useMaterial3: true,
-          ),
-
+          darkTheme: AppTheme.darkTheme,
           themeMode: themeMode,
 
           home: const SplashScreen(),

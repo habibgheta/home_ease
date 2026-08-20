@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:home_ease/screens/auth/register_screen.dart';
-import 'package:home_ease/screens/main_screen.dart';
 import 'package:home_ease/utils/app_colors.dart';
 import 'package:home_ease/utils/app_strings.dart';
 import 'package:home_ease/widgets/custom_button.dart';
@@ -19,15 +18,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController emailController = TextEditingController();
+
   final TextEditingController passwordController = TextEditingController();
 
   bool obscurePassword = true;
+
   bool isLoading = false;
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+
     super.dispose();
   }
 
@@ -37,86 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
         isLoading = true;
       });
 
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim(),
-          );
-
-      User? user = userCredential.user;
-
-      if (user == null) {
-        throw FirebaseAuthException(
-          code: "user-not-found",
-          message: "User not found.",
-        );
-      }
-
-      await user.reload();
-      user = FirebaseAuth.instance.currentUser;
-
-      if (!mounted) return;
-
-      if (user!.emailVerified) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MainScreen()),
-        );
-      } else {
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text("Email Not Verified"),
-              content: const Text(
-                "Your email address has not been verified.\n\n"
-                "Please verify your email to recover your account securely.\n\n"
-                "If you are demonstrating the project, you may continue without verification.",
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () async {
-                    await user!.sendEmailVerification();
-
-                    if (!context.mounted) return;
-
-                    Navigator.pop(context);
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Verification email sent successfully."),
-                      ),
-                    );
-                  },
-                  child: const Text("Resend Email"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MainScreen()),
-                    );
-                  },
-                  child: const Text("Continue Anyway"),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    await FirebaseAuth.instance.signOut();
-
-                    if (!context.mounted) return;
-
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Cancel"),
-                ),
-              ],
-            );
-          },
-        );
-      }
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
     } on FirebaseAuthException catch (e) {
       String message;
 
@@ -152,6 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
           content: Text("Something went wrong. Please try again."),
         ),
       );
+
+      debugPrint("Login error: $e");
     } finally {
       if (mounted) {
         setState(() {
@@ -165,6 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.login)),
+
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -186,7 +115,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   Text(
                     AppStrings.signIn,
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.blueGrey.shade600,
+                    ),
                   ),
 
                   const SizedBox(height: 35),
@@ -280,6 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(AppStrings.dontHaveAccount),
+
                       TextButton(
                         onPressed: () {
                           Navigator.push(
