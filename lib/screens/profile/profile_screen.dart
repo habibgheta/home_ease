@@ -42,18 +42,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
     return Scaffold(
       appBar: AppBar(title: const Text("My Profile")),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             CircleAvatar(
               radius: 55,
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest,
               backgroundImage: currentUser?.photoUrl.isNotEmpty == true
                   ? NetworkImage(currentUser!.photoUrl)
-                  : const AssetImage("assets/images/profile/profile.jpg")
-                        as ImageProvider,
+                  : null,
+              child: currentUser?.photoUrl.isNotEmpty != true
+                  ? const Icon(Icons.person, size: 60)
+                  : null,
             ),
 
             const SizedBox(height: 20),
