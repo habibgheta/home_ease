@@ -37,6 +37,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
     try {
       final result = await BookingService.getBookings(user.uid);
 
+      result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
       if (!mounted) return;
 
       setState(() {
@@ -109,6 +111,24 @@ class _BookingsScreenState extends State<BookingsScreen> {
     );
   }
 
+  Color getStatusColor(String status) {
+    switch (status) {
+      case "Pending":
+        return Colors.yellow.shade100;
+
+      case "Rejected":
+      case "Cancelled":
+        return Colors.red.shade100;
+
+      case "Accepted":
+      case "Confirmed":
+        return Colors.green.shade100;
+
+      default:
+        return Colors.grey.shade200;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,6 +164,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
         final booking = bookings[index];
 
         final isCancelled = booking.status == "Cancelled";
+        final isRejected = booking.status == "Rejected";
+
+        final canCancel = !isCancelled && !isRejected;
 
         return Card(
           margin: const EdgeInsets.only(bottom: 15),
@@ -202,7 +225,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: isCancelled ? Colors.red.shade100 : Colors.green,
+                    color: getStatusColor(booking.status),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -214,7 +237,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                   ),
                 ),
 
-                if (!isCancelled) ...[
+                if (canCancel) ...[
                   const SizedBox(height: 12),
 
                   SizedBox(

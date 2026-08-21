@@ -7,59 +7,95 @@ import 'package:home_ease/screens/provider/provider_bookings_screen.dart';
 import 'package:home_ease/services/admin_service.dart';
 import 'package:home_ease/services/provider_service.dart';
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
 
   @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  User? currentUser;
+
+  Widget? destinationScreen;
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    FirebaseAuth.instance.authStateChanges().listen(handleAuthState);
+  }
+
+  Future<void> handleAuthState(User? user) async {
+    if (user == null) {
+      if (!mounted) return;
+
+      setState(() {
+        currentUser = null;
+        destinationScreen = const LoginScreen();
+        isLoading = false;
+      });
+
+      return;
+    }
+
+    if (mounted) {
+      setState(() {
+        currentUser = user;
+        destinationScreen = null;
+        isLoading = true;
+      });
+    }
+
+    try {
+      final isAdmin = await AdminService.isAdmin(user.uid);
+
+      if (isAdmin) {
+        if (!mounted) return;
+
+        setState(() {
+          destinationScreen = const AdminScreen();
+          isLoading = false;
+        });
+
+        return;
+      }
+
+      final provider = await ProviderService.getProviderByUid(user.uid);
+
+      if (!mounted) return;
+
+      if (provider != null) {
+        setState(() {
+          destinationScreen = const ProviderBookingsScreen();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          destinationScreen = const MainScreen();
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("AuthWrapper error: $e");
+
+      if (!mounted) return;
+
+      setState(() {
+        destinationScreen = const MainScreen();
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+    if (isLoading || destinationScreen == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
-        if (!snapshot.hasData) {
-          return const LoginScreen();
-        }
-
-        final user = snapshot.data!;
-
-        return FutureBuilder<bool>(
-          future: AdminService.isAdmin(user.uid),
-          builder: (context, adminSnapshot) {
-            if (adminSnapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-
-            if (adminSnapshot.data == true) {
-              return const AdminScreen();
-            }
-
-            return FutureBuilder(
-              future: ProviderService.getProviderByUid(user.uid),
-              builder: (context, providerSnapshot) {
-                if (providerSnapshot.connectionState ==
-                    ConnectionState.waiting) {
-                  return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                if (providerSnapshot.data != null) {
-                  return const ProviderBookingsScreen();
-                }
-
-                return const MainScreen();
-              },
-            );
-          },
-        );
-      },
-    );
+    return destinationScreen!;
   }
 }

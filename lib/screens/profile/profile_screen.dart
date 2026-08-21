@@ -4,7 +4,6 @@ import 'package:home_ease/screens/settings/settings_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:home_ease/models/app_user.dart';
 import 'package:home_ease/services/user_service.dart';
-import 'package:home_ease/screens/auth/login_screen.dart';
 import 'package:home_ease/screens/booking/bookings_screen.dart';
 import 'package:home_ease/screens/profile/edit_profile_screen.dart';
 
@@ -176,16 +175,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Navigator.pop(context);
 
                               await FirebaseAuth.instance.signOut();
-
-                              if (!mounted) return;
-
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const LoginScreen(),
-                                ),
-                                (route) => false,
-                              );
                             },
                             child: const Text("Logout"),
                           ),

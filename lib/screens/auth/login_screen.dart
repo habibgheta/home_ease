@@ -18,31 +18,32 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController emailController = TextEditingController();
-
   final TextEditingController passwordController = TextEditingController();
 
   bool obscurePassword = true;
-
   bool isLoading = false;
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-
     super.dispose();
   }
 
   Future<void> loginUser() async {
-    try {
-      setState(() {
-        isLoading = true;
-      });
+    if (!_formKey.currentState!.validate()) return;
 
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+
+      await FirebaseAuth.instance.currentUser?.reload();
     } on FirebaseAuthException catch (e) {
       String message;
 
@@ -93,7 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.login)),
-
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 8),
 
-                  Text(
+                  const Text(
                     AppStrings.signIn,
                     style: TextStyle(fontSize: 16, color: Colors.blueGrey),
                   ),
@@ -196,11 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   CustomButton(
                     text: AppStrings.login,
                     isLoading: isLoading,
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        loginUser();
-                      }
-                    },
+                    onPressed: loginUser,
                   ),
 
                   const SizedBox(height: 20),
