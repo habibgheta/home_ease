@@ -121,7 +121,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Account created successfully. Please login to continue."),
+          content: Text(
+            "Account created successfully. Please login to continue.",
+          ),
         ),
       );
 

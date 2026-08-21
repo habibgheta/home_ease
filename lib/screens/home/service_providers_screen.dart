@@ -92,11 +92,10 @@ class _ServiceProvidersScreenState extends State<ServiceProvidersScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      BookingDetailsScreen(
-                        provider: provider,
-                        serviceName: widget.serviceName,
-                      ),
+                  builder: (context) => BookingDetailsScreen(
+                    provider: provider,
+                    serviceName: widget.serviceName,
+                  ),
                 ),
               );
             },
