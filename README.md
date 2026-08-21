@@ -2,7 +2,7 @@
 
 HomeEase is a Flutter-based home service booking application that helps users find and book professionals for common household services such as electricians, plumbers, carpenters, painters and cleaners.
 
-The idea behind HomeEase is similar to the concept used by Urban Company, where customers can browse different home services, find suitable professionals and book a service according to their requirements.
+The idea behind HomeEase is similar to the concept used by Urban Company, where customers can browse different home services, find suitable professionals and book a service according to their requirements. People can also register themselves as Service Providers to provide professional services to Home-Owners.
 
 >HomeEase is an independent project inspired by the home-service marketplace concept of Urban Company. It is not an official Urban Company application or a direct clone of Urban Company.
 
@@ -41,6 +41,16 @@ This project is developed by<b> Habib Gheta </b>as part of Industrial Training (
 - Error handling with SnackBars
 - Logout with alert dialog confirmation
 
+### Service Provider Authentication
+
+- Separate registration option for service providers
+- Service provider login
+- Employee code for service provider identification
+- Service provider profile picture upload
+- Password visibility toggle
+- Email and password validation
+- Logout functionality
+
 ### User Profile
 
 - Edit profile information
@@ -63,16 +73,17 @@ This project is developed by<b> Habib Gheta </b>as part of Industrial Training (
 - Provider services
 - Provider rating
 - Provider hourly charges
-- Admin can add service providers
-- Admin can edit service providers
-- Admin can delete service providers
-- Admin can manage provider services
+- Admin can add, edit, delete and manage service providers
 - Admin can manage provider availability and status
+- Service providers can register their own accounts
+- Service providers can log in to their accounts
+- Service providers can view their bookings
+- Service providers can accept/reject user bookings
+- Booking status is updated after provider action
 
 ### Favorites
 
-- Add service providers to favorites
-- Remove service providers from favorites
+- Add/Remove service providers to favorites
 - View favorite providers
 - Favorites are stored separately for each user
 - Favorite status is maintained using Cloud Firestore
@@ -84,11 +95,18 @@ This project is developed by<b> Habib Gheta </b>as part of Industrial Training (
 - Select date
 - Select available time slot
 - Book a service
+- New bookings start with "Pending" status
 - View booking history
 - View booking details
 - Cancel bookings
+- Users cannot cancel rejected bookings
 - Prevent unavailable or booked time slots from being selected
 - Store bookings in Cloud Firestore
+- Booking status can be Pending, Accepted or Rejected
+- Service providers can accept or reject bookings
+- Admin can manage booking status
+- Newest bookings are displayed first
+- Different colors are used for different booking statuses
 
 ### Settings
 
@@ -111,10 +129,7 @@ The application includes a separate admin panel for performing CRUD operations o
 
 #### Service Providers
 
-- View service providers
-- Add service providers
-- Edit service providers
-- Delete service providers
+- Create, Read, Update and Delete (CRUD) service providers
 - Manage provider services
 - Manage provider availability and status
 
@@ -131,7 +146,9 @@ The application includes a separate admin panel for performing CRUD operations o
 - Cancel bookings
 - Delete bookings
 - Update booking status
-- View booked and cancelled status
+- Accept/Reject bookings
+- View pending, accepted and rejected bookings
+- Newest bookings are displayed first
 
 ### Admin Panel UI
 
@@ -305,18 +322,13 @@ Firebase and Cloudinary configuration must be set up before running the applicat
 
 HomeEase Version 1 is complete.
 
-The current version includes user authentication, service categories, service providers, favorites, service booking, profile management, theme switching and a complete admin panel.
+The current version includes user authentication, service categories, service providers, favorites, service booking, profile management, theme switching and a complete admin panel integrated with Firebase and Cloudinary.
 
 ## Future Improvements
 
 The following features can be considered for future versions:
 
 - Online payment integration
-- Push notifications
-- Provider-side application
-- Real-time booking updates
-- Reviews and ratings from actual users
-- Advanced provider availability management
 - Improved admin analytics
 
 ## Urban Company Inspiration
