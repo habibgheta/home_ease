@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:home_ease/screens/auth/register_screen.dart';
 import 'package:home_ease/utils/app_colors.dart';
 import 'package:home_ease/utils/app_strings.dart';
 import 'package:home_ease/widgets/custom_button.dart';
 import 'package:home_ease/widgets/custom_text_field.dart';
 import 'package:home_ease/screens/auth/forgot_password_screen.dart';
+import 'package:home_ease/screens/auth/register_choice_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -214,7 +214,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const RegisterScreen(),
+                              builder: (context) =>
+                                  const RegisterChoiceScreen(),
                             ),
                           );
                         },

@@ -23,7 +23,10 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
 
   Future<void> loadBookings() async {
     try {
-      final snapshot = await _firestore.collection("bookings").get();
+      final snapshot = await _firestore
+          .collection("bookings")
+          .orderBy("createdAt", descending: true)
+          .get();
 
       if (!mounted) return;
 
@@ -54,6 +57,8 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
       if (!mounted) return;
 
       await loadBookings();
+
+      if (!mounted) return;
 
       ScaffoldMessenger.of(
         context,
@@ -105,6 +110,8 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
 
       await loadBookings();
 
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Booking deleted successfully.")),
       );
@@ -148,9 +155,24 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
 
                 final timeSlot = data["timeSlot"] ?? "";
 
-                final status = data["status"] ?? "Booked";
+                final status = data["status"] ?? "Pending";
 
                 final charges = data["chargesPerHour"] ?? 0;
+
+                final isPending = status == "Pending";
+                final isCancelled = status == "Cancelled";
+                final isAccepted = status == "Accepted";
+                final isRejected = status == "Rejected";
+
+                Color statusBackgroundColor;
+
+                if (isAccepted) {
+                  statusBackgroundColor = Colors.green.shade100;
+                } else if (isRejected || isCancelled) {
+                  statusBackgroundColor = Colors.red.shade100;
+                } else {
+                  statusBackgroundColor = Colors.orange.shade100;
+                }
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -160,6 +182,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: Text(
@@ -173,7 +196,11 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
 
                             PopupMenuButton<String>(
                               onSelected: (value) {
-                                if (value == "cancel") {
+                                if (value == "accept") {
+                                  updateBookingStatus(booking, "Accepted");
+                                } else if (value == "reject") {
+                                  updateBookingStatus(booking, "Rejected");
+                                } else if (value == "cancel") {
                                   updateBookingStatus(booking, "Cancelled");
                                 } else if (value == "delete") {
                                   deleteBooking(booking);
@@ -181,11 +208,24 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                               },
                               itemBuilder: (context) {
                                 return [
-                                  if (status != "Cancelled")
+                                  if (isPending)
+                                    const PopupMenuItem(
+                                      value: "accept",
+                                      child: Text("Accept Booking"),
+                                    ),
+
+                                  if (isPending)
+                                    const PopupMenuItem(
+                                      value: "reject",
+                                      child: Text("Reject Booking"),
+                                    ),
+
+                                  if (isPending || isAccepted)
                                     const PopupMenuItem(
                                       value: "cancel",
                                       child: Text("Cancel Booking"),
                                     ),
+
                                   const PopupMenuItem(
                                     value: "delete",
                                     child: Text("Delete Booking"),
@@ -199,6 +239,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                         const SizedBox(height: 8),
 
                         Text("Provider ID: $providerId"),
+
                         Text("Service: $serviceName"),
 
                         const SizedBox(height: 4),
@@ -208,7 +249,9 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                         const SizedBox(height: 8),
 
                         Text("Date: $date"),
+
                         Text("Time: $timeSlot"),
+
                         Text("Charges: ₹$charges/hour"),
 
                         const SizedBox(height: 10),
@@ -219,9 +262,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: status == "Cancelled"
-                                ? Colors.red.shade100
-                                : Colors.green.shade100,
+                            color: statusBackgroundColor,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(

@@ -129,6 +129,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Return to Login screen
       Navigator.pop(context);
+      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       String message;
 
@@ -397,6 +398,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const Text("Already have an account?"),
                       TextButton(
                         onPressed: () {
+                          Navigator.pop(context);
                           Navigator.pop(context);
                         },
                         child: const Text(

@@ -4,56 +4,85 @@ import 'package:home_ease/models/service_provider.dart';
 class ProviderService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  static CollectionReference<Map<String, dynamic>> get _providersCollection =>
-      _firestore.collection("service_providers");
+  static Future<List<ServiceProvider>> getAllProviders() async {
+    final snapshot = await _firestore.collection("serviceProviders").get();
+
+    return snapshot.docs
+        .map((document) => ServiceProvider.fromMap(document.data()))
+        .toList();
+  }
+
+  static Future<List<ServiceProvider>> getTopProviders() async {
+    final snapshot = await _firestore
+        .collection("serviceProviders")
+        .limit(10)
+        .get();
+
+    return snapshot.docs
+        .map((document) => ServiceProvider.fromMap(document.data()))
+        .toList();
+  }
 
   static Future<List<ServiceProvider>> getProvidersByService(
     String serviceName,
   ) async {
-    final snapshot = await _providersCollection
+    final snapshot = await _firestore
+        .collection("serviceProviders")
         .where("services", arrayContains: serviceName)
         .get();
 
-    final providers = snapshot.docs
-        .map((doc) => ServiceProvider.fromMap(doc.data()))
+    return snapshot.docs
+        .map((document) => ServiceProvider.fromMap(document.data()))
         .toList();
-
-    providers.sort((a, b) => b.rating.compareTo(a.rating));
-
-    return providers;
   }
 
-  static Future<List<ServiceProvider>> getTopProviders() async {
-    final snapshot = await _providersCollection.get();
+  static Future<ServiceProvider?> getProviderByUid(String uid) async {
+    final document = await _firestore
+        .collection("serviceProviders")
+        .doc(uid)
+        .get();
 
-    final providers = snapshot.docs
-        .map((doc) => ServiceProvider.fromMap(doc.data()))
-        .toList();
+    if (!document.exists || document.data() == null) {
+      return null;
+    }
 
-    providers.sort((a, b) => b.rating.compareTo(a.rating));
-
-    return providers.take(6).toList();
-  }
-
-  static Future<List<ServiceProvider>> getAllProviders() async {
-    final snapshot = await _providersCollection.get();
-
-    return snapshot.docs.map((doc) {
-      return ServiceProvider.fromMap(doc.data());
-    }).toList();
+    return ServiceProvider.fromMap(document.data()!);
   }
 
   static Future<void> addProvider(ServiceProvider provider) async {
-    await _providersCollection.doc(provider.employeeCode).set(provider.toMap());
+    await _firestore
+        .collection("serviceProviders")
+        .doc(provider.uid)
+        .set(provider.toMap());
   }
 
   static Future<void> updateProvider(ServiceProvider provider) async {
-    await _providersCollection
-        .doc(provider.employeeCode)
+    await _firestore
+        .collection("serviceProviders")
+        .doc(provider.uid)
         .update(provider.toMap());
   }
 
-  static Future<void> deleteProvider(String employeeCode) async {
-    await _providersCollection.doc(employeeCode).delete();
+  static Future<void> deleteProvider(String providerId) async {
+    await _firestore.collection("serviceProviders").doc(providerId).delete();
+  }
+
+  static Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>>
+  getProviderBookings(String employeeCode) async {
+    final snapshot = await _firestore
+        .collection("bookings")
+        .where("providerId", isEqualTo: employeeCode)
+        .get();
+
+    return snapshot.docs;
+  }
+
+  static Future<void> updateBookingStatus(
+    String bookingId,
+    String status,
+  ) async {
+    await _firestore.collection("bookings").doc(bookingId).update({
+      "status": status,
+    });
   }
 }

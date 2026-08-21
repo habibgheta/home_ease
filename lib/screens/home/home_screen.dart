@@ -3,7 +3,6 @@ import 'package:home_ease/models/service_category.dart';
 import 'package:home_ease/widgets/service_card.dart';
 import 'package:home_ease/widgets/provider_card.dart';
 import 'package:home_ease/screens/home/service_providers_screen.dart';
-import 'package:home_ease/screens/main_screen.dart';
 import 'package:home_ease/screens/booking/bookings_screen.dart';
 import 'package:home_ease/screens/favorites/favorites_screen.dart';
 import 'package:home_ease/screens/settings/settings_screen.dart';

@@ -40,7 +40,9 @@ class BookingService {
 
     final data = document.data();
 
-    return data?["status"] == "Booked";
+    final status = data?["status"];
+
+    return status == "Pending" || status == "Accepted";
   }
 
   static Future<void> addBooking(Booking booking) async {
@@ -50,6 +52,7 @@ class BookingService {
   static Future<List<Booking>> getBookings(String userId) async {
     final snapshot = await _bookingsCollection
         .where("userId", isEqualTo: userId)
+        .orderBy("createdAt", descending: true)
         .get();
 
     return snapshot.docs
@@ -80,8 +83,9 @@ class BookingService {
 
     final data = document.data();
 
-    // A cancelled booking should not block the time slot
-    if (data?["status"] != "Booked") {
+    final status = data?["status"];
+
+    if (status != "Pending" && status != "Accepted") {
       return null;
     }
 

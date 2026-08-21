@@ -16,7 +16,7 @@ class Booking {
     required this.userId,
     required this.date,
     required this.timeSlot,
-    this.status = "Booked",
+    this.status = "Pending",
     required this.bookingId,
     required this.createdAt,
   });
@@ -61,7 +61,7 @@ class Booking {
       userId: map["userId"] ?? "",
       date: map["date"] ?? "",
       timeSlot: map["timeSlot"] ?? "",
-      status: map["status"] ?? "Booked",
+      status: map["status"] ?? "Pending",
       bookingId: map["bookingId"] ?? "",
       createdAt: map["createdAt"]?.toDate() ?? DateTime.now(),
     );

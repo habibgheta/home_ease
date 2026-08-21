@@ -1,4 +1,5 @@
 class ServiceProvider {
+  final String uid;
   final String employeeCode;
   final String name;
   final List<String> services;
@@ -10,6 +11,7 @@ class ServiceProvider {
   final String imageUrl;
 
   const ServiceProvider({
+    this.uid = "",
     required this.employeeCode,
     required this.name,
     required this.services,
@@ -23,6 +25,7 @@ class ServiceProvider {
 
   factory ServiceProvider.fromMap(Map<String, dynamic> map) {
     return ServiceProvider(
+      uid: map["uid"] ?? "",
       employeeCode: map["employeeCode"] ?? "",
       name: map["name"] ?? "",
       services: List<String>.from(map["services"] ?? []),
@@ -37,6 +40,7 @@ class ServiceProvider {
 
   Map<String, dynamic> toMap() {
     return {
+      "uid": uid,
       "employeeCode": employeeCode,
       "name": name,
       "services": services,
