@@ -224,6 +224,7 @@ lib/
         favorites/
         home/
         profile/
+        provider/
         settings/
         splash/
     services/
