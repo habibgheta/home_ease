@@ -25,7 +25,6 @@ class _ProviderRegisterScreenState extends State<ProviderRegisterScreen> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   final employeeCodeController = TextEditingController();
-  final servicesController = TextEditingController();
   final descriptionController = TextEditingController();
   final chargesController = TextEditingController();
 
@@ -36,6 +35,16 @@ class _ProviderRegisterScreenState extends State<ProviderRegisterScreen> {
   Uint8List? selectedImageBytes;
   XFile? selectedImage;
 
+  List<String> selectedServices = [];
+
+  final List<String> availableServices = [
+    "Electrician",
+    "Plumber",
+    "Carpenter",
+    "Painter",
+    "Cleaner",
+  ];
+
   @override
   void dispose() {
     firstNameController.dispose();
@@ -44,7 +53,6 @@ class _ProviderRegisterScreenState extends State<ProviderRegisterScreen> {
     passwordController.dispose();
     confirmPasswordController.dispose();
     employeeCodeController.dispose();
-    servicesController.dispose();
     descriptionController.dispose();
     chargesController.dispose();
     super.dispose();
@@ -67,8 +75,72 @@ class _ProviderRegisterScreenState extends State<ProviderRegisterScreen> {
     });
   }
 
+  Future<void> selectServices() async {
+    final result = await showDialog<List<String>>(
+      context: context,
+      builder: (context) {
+        final tempSelected = List<String>.from(selectedServices);
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text("Select Services"),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: availableServices.map((service) {
+                    return CheckboxListTile(
+                      title: Text(service),
+                      value: tempSelected.contains(service),
+                      onChanged: (value) {
+                        setDialogState(() {
+                          if (value == true) {
+                            tempSelected.add(service);
+                          } else {
+                            tempSelected.remove(service);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, tempSelected);
+                  },
+                  child: const Text("Done"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (result == null) return;
+
+    setState(() {
+      selectedServices = result;
+    });
+  }
+
   Future<void> registerProvider() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (selectedServices.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select at least one service.")),
+      );
+      return;
+    }
 
     try {
       setState(() {
@@ -112,12 +184,6 @@ class _ProviderRegisterScreenState extends State<ProviderRegisterScreen> {
         photoUrl = uploadedUrl;
       }
 
-      final services = servicesController.text
-          .split(",")
-          .map((service) => service.trim())
-          .where((service) => service.isNotEmpty)
-          .toList();
-
       await FirebaseFirestore.instance
           .collection("serviceProviders")
           .doc(user.uid)
@@ -126,7 +192,7 @@ class _ProviderRegisterScreenState extends State<ProviderRegisterScreen> {
             "employeeCode": employeeCode,
             "name":
                 "${firstNameController.text.trim()} ${lastNameController.text.trim()}",
-            "services": services,
+            "services": selectedServices,
             "description": descriptionController.text.trim(),
             "status": "Available",
             "rating": 0.0,
@@ -310,17 +376,37 @@ class _ProviderRegisterScreenState extends State<ProviderRegisterScreen> {
 
                 const SizedBox(height: 20),
 
-                CustomTextField(
-                  controller: servicesController,
-                  labelText: "Services",
-                  hintText: "Example: Electrician, Plumber",
-                  prefixIcon: Icons.home_repair_service_outlined,
-                  textInputAction: TextInputAction.next,
+                FormField<List<String>>(
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Enter at least one service";
+                    if (selectedServices.isEmpty) {
+                      return "Select at least one service";
                     }
                     return null;
+                  },
+                  builder: (field) {
+                    return InkWell(
+                      onTap: isLoading ? null : selectServices,
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: "Services",
+                          prefixIcon: const Icon(
+                            Icons.home_repair_service_outlined,
+                          ),
+                          border: const OutlineInputBorder(),
+                          errorText: field.errorText,
+                        ),
+                        child: Text(
+                          selectedServices.isEmpty
+                              ? "Select services"
+                              : selectedServices.join(", "),
+                          style: TextStyle(
+                            color: selectedServices.isEmpty
+                                ? Colors.grey
+                                : Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                      ),
+                    );
                   },
                 ),
 

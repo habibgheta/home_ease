@@ -40,7 +40,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> initializeData() async {
     final user = await UserService.getCurrentUser();
     final categories = await CategoryService.getCategories();
-    final providers = await ProviderService.getTopProviders();
+    final allProviders = await ProviderService.getTopProviders();
+
+    // Arrange professionals by rating from highest to lowest
+    allProviders.sort((a, b) => b.rating.compareTo(a.rating));
+
+    // Show only the top 10 professionals
+    final providers = allProviders.take(10).toList();
 
     if (!mounted) return;
 
@@ -57,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
     return Scaffold(
       appBar: AppBar(title: const Text("HomeEase"), centerTitle: true),
 
@@ -198,7 +205,10 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 "Hello, ${currentUser?.firstName ?? "User"} 👋",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
               const SizedBox(height: 8),

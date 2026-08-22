@@ -13,10 +13,7 @@ class ProviderService {
   }
 
   static Future<List<ServiceProvider>> getTopProviders() async {
-    final snapshot = await _firestore
-        .collection("serviceProviders")
-        .limit(10)
-        .get();
+    final snapshot = await _firestore.collection("serviceProviders").get();
 
     return snapshot.docs
         .map((document) => ServiceProvider.fromMap(document.data()))

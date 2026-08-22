@@ -21,7 +21,7 @@ class BookingDetailsScreen extends StatefulWidget {
 class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   String selectedDate = "";
 
-  String selectedTime = "9:00 AM - 11:00 AM";
+  String selectedTime = "9:00 AM - 10:00 AM";
 
   bool isLoading = false;
 
@@ -31,10 +31,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   bool isCheckingSlot = false;
 
   final List<String> timeSlots = [
-    "9:00 AM - 11:00 AM",
-    "11:00 AM - 1:00 PM",
-    "2:00 PM - 4:00 PM",
-    "4:00 PM - 6:00 PM",
+    "9:00 AM - 10:00 AM",
+    "10:00 AM - 11:00 AM",
+    "11:00 AM - 12:00 PM",
+    "12:00 PM - 1:00 PM",
+    "2:00 PM - 3:00 PM",
+    "3:00 PM - 4:00 PM",
+    "4:00 PM - 5:00 PM",
+    "5:00 PM - 6:00 PM",
   ];
 
   @override
@@ -382,6 +386,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     : Text(isSlotBooked ? "Time Slot Unavailable" : "Book Now"),
               ),
             ),
+
+            const SizedBox(height: 35),
           ],
         ),
       ),
