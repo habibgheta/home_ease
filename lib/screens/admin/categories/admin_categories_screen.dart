@@ -368,6 +368,8 @@ class _AdminCategoryFormScreenState extends State<AdminCategoryFormScreen> {
                     : Text(isEditing ? "Update Category" : "Add Category"),
               ),
             ),
+
+            const SizedBox(height: 35),
           ],
         ),
       ),

@@ -559,6 +559,8 @@ class _AdminProviderFormScreenState extends State<AdminProviderFormScreen> {
                     : Text(isEditing ? "Update Provider" : "Add Provider"),
               ),
             ),
+
+            const SizedBox(height: 35),
           ],
         ),
       ),
