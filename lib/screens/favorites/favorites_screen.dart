@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:home_ease/models/service_provider.dart';
 import 'package:home_ease/services/favorite_service.dart';
 import 'package:home_ease/widgets/provider_card.dart';
+import 'package:home_ease/screens/booking/booking_details_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -77,7 +78,24 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       padding: const EdgeInsets.all(16),
       itemCount: favorites.length,
       itemBuilder: (context, index) {
-        return ProviderCard(provider: favorites[index], onTap: () {});
+        final provider = favorites[index];
+
+        return ProviderCard(
+          provider: provider,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookingDetailsScreen(
+                  provider: provider,
+                  serviceName: provider.services.isNotEmpty
+                      ? provider.services.first
+                      : "Home Service",
+                ),
+              ),
+            );
+          },
+        );
       },
     );
   }

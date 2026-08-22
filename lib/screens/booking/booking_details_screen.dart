@@ -61,6 +61,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   }
 
   Future<void> checkSlotAvailability() async {
+    if (!mounted) return;
+
     setState(() {
       isCheckingSlot = true;
       isSlotBooked = false;
@@ -86,19 +88,6 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         isBookedByCurrentUser = bookedByCurrentUser;
         isCheckingSlot = false;
       });
-
-      // Show the correct message
-      if (booked) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              bookedByCurrentUser
-                  ? "You have already booked this service provider for this time slot."
-                  : "Sorry, this service provider is already booked for this time slot.",
-            ),
-          ),
-        );
-      }
     } catch (e) {
       if (!mounted) return;
 
@@ -152,7 +141,6 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     });
 
     try {
-      // Final availability check before creating the booking
       final alreadyBooked = await BookingService.isSlotBooked(
         providerId: widget.provider.employeeCode,
         date: selectedDate,
@@ -227,16 +215,22 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Booking Details")),
-      body: Padding(
+
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
+
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
+
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(15),
+
                 boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
@@ -245,6 +239,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   ),
                 ],
               ),
+
               child: Column(
                 children: [
                   CircleAvatar(
@@ -267,11 +262,30 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     ),
                   ),
 
+                  const SizedBox(height: 5),
+
+                  Text(
+                    "Employee ID: ${widget.provider.employeeCode}",
+                    style: const TextStyle(fontSize: 15, color: Colors.grey),
+                  ),
+
                   const SizedBox(height: 8),
 
                   Text(
                     widget.serviceName,
                     style: const TextStyle(fontSize: 17, color: Colors.grey),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Text(
+                    widget.provider.description,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
 
                   const SizedBox(height: 15),
@@ -283,6 +297,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         "⭐ ${widget.provider.rating}",
                         style: const TextStyle(fontSize: 16),
                       ),
+
                       Text(
                         "₹${widget.provider.chargesPerHour}/hour",
                         style: const TextStyle(fontSize: 16),
@@ -295,32 +310,35 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
             const SizedBox(height: 25),
 
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Select Date",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+            const Text(
+              "Select Date",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 8),
 
             InkWell(
               onTap: isLoading ? null : selectDate,
+
               child: Container(
                 width: double.infinity,
+
                 padding: const EdgeInsets.symmetric(
                   horizontal: 15,
                   vertical: 14,
                 ),
+
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(8),
                 ),
+
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                   children: [
                     Text(selectedDate),
+
                     const Icon(Icons.calendar_month),
                   ],
                 ),
@@ -329,24 +347,27 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
             const SizedBox(height: 20),
 
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Select Time Slot",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+            const Text(
+              "Select Time Slot",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+
+            const SizedBox(height: 5),
 
             DropdownButton<String>(
               value: selectedTime,
+
               isExpanded: true,
+
               items: timeSlots.map((time) {
                 return DropdownMenuItem<String>(value: time, child: Text(time));
               }).toList(),
+
               onChanged: isLoading
                   ? null
                   : (value) {
                       if (value == null) return;
+
                       selectTimeSlot(value);
                     },
             ),
@@ -354,33 +375,35 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             if (!isCheckingSlot && isSlotBooked)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    isBookedByCurrentUser
-                        ? "You have already booked this service provider for this time slot."
-                        : "Sorry, this service provider is already booked for this time slot.",
-                    style: const TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.w600,
-                    ),
+
+                child: Text(
+                  isBookedByCurrentUser
+                      ? "You have already booked this service provider for this time slot."
+                      : "Sorry, this service provider is already booked for this time slot.",
+
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
 
-            const Spacer(),
+            const SizedBox(height: 20),
 
             SizedBox(
               width: double.infinity,
               height: 50,
+
               child: ElevatedButton(
                 onPressed: isLoading || isCheckingSlot || isSlotBooked
                     ? null
                     : bookService,
+
                 child: isLoading
                     ? const SizedBox(
                         height: 22,
                         width: 22,
+
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(isSlotBooked ? "Time Slot Unavailable" : "Book Now"),

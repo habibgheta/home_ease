@@ -202,6 +202,13 @@ class _BookingsScreenState extends State<BookingsScreen> {
                             ),
                           ),
 
+                          const SizedBox(height: 2),
+
+                          Text(
+                            "Employee ID: ${booking.provider.employeeCode}",
+                            style: const TextStyle(fontSize: 13),
+                          ),
+
                           Text(booking.serviceName),
                         ],
                       ),

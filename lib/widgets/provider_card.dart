@@ -125,6 +125,13 @@ class _ProviderCardState extends State<ProviderCard> {
                     ),
                   ),
 
+                  const SizedBox(height: 2),
+
+                  Text(
+                    "Employee ID: ${widget.provider.employeeCode}",
+                    style: const TextStyle(fontSize: 13),
+                  ),
+
                   const SizedBox(height: 4),
 
                   Text(widget.provider.services.join(", ")),
